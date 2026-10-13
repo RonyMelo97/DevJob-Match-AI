@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { apiFetch, PUBLIC_MODE } from '../services/api';
+import { useEffect, useState, useRef } from 'react';
 import { z } from 'zod';
 import { MAX_PDF_BYTES, draftSchema, profileSchema, savedProfileSchema, type ResumeDraft, type ResumeProfile, type SavedProfile } from '@devjob/contracts';
 import styles from './ResumePanel.module.css';
@@ -22,6 +23,7 @@ async function readResponse(response: Response): Promise<unknown> {
 }
 
 export function ResumePanel({onProfileChange}:{onProfileChange:()=>void}): React.JSX.Element {
+  const inputRef=useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [draft, setDraft] = useState<ResumeDraft | null>(null);
   const [profile, setProfile] = useState<ResumeProfile | null>(null);
@@ -34,7 +36,7 @@ export function ResumePanel({onProfileChange}:{onProfileChange:()=>void}): React
   const [deleteRequested, setDeleteRequested] = useState<boolean>(false);
   useEffect(() => {
     const controller = new AbortController();
-    fetch('/api/profile', { signal: controller.signal }).then(readResponse).then((body) => {
+    apiFetch('/api/profile', { signal: controller.signal }).then(readResponse).then((body) => {
       if (controller.signal.aborted) return;
       const result = savedResponse.parse(body);
       setSaved(result.saved);
@@ -52,7 +54,7 @@ export function ResumePanel({onProfileChange}:{onProfileChange:()=>void}): React
     setBusy(true); setError(''); setMessage('Extraindo texto localmente…');
     try {
       const form = new FormData(); form.append('resume', file);
-      const result = draftSchema.parse(await readResponse(await fetch('/api/resumes/extract', { method: 'POST', body: form })));
+      const result = draftSchema.parse(await readResponse(await apiFetch('/api/resumes/extract', { method: 'POST', body: form })));
       setDraft(result); setProfile(result.profile); setSkills(result.profile.skills.join(', ')); setReviewed(false);
       setMessage(`Texto extraído de ${result.pages} página(s). Revise antes de salvar.`);
     } catch (cause: unknown) { setError(cause instanceof Error ? cause.message : 'Falha na extração.'); setMessage(''); }
@@ -63,9 +65,9 @@ export function ResumePanel({onProfileChange}:{onProfileChange:()=>void}): React
     setBusy(true); setError('');
     try {
       const result = profileSchema.parse({ ...profile, skills: [...new Set(skills.split(',').map((value) => value.trim()).filter(Boolean))] });
-      const response = savedResponse.parse(await readResponse(await fetch('/api/profile', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ profile: result, reviewed: true }) })));
-      setSaved(response.saved); setProfile(result); setDraft(null); setReviewed(false); setFile(null);
-      setMessage('Perfil revisado salvo no seu computador. O PDF e o texto bruto não foram armazenados.');
+      const response = savedResponse.parse(await readResponse(await apiFetch('/api/profile', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ profile: result, reviewed: true }) })));
+      setSaved(response.saved); setProfile(result); setDraft(null); setReviewed(false); setFile(null); if(inputRef.current)inputRef.current.value='';
+      setMessage(PUBLIC_MODE ? 'Perfil revisado guardado somente nesta sessão. Recarregar a página descarta os dados.' : 'Perfil revisado salvo no seu computador. O PDF e o texto bruto não foram armazenados.');
       onProfileChange();
     } catch (cause: unknown) { setError(cause instanceof z.ZodError ? 'Confira os limites dos campos e das tecnologias (até 100 itens de 100 caracteres).' : cause instanceof Error ? cause.message : 'Falha ao salvar.'); }
     finally { setBusy(false); }
@@ -73,9 +75,9 @@ export function ResumePanel({onProfileChange}:{onProfileChange:()=>void}): React
   async function remove(): Promise<void> {
     setBusy(true); setError('');
     try {
-      const response = await fetch('/api/profile', { method: 'DELETE' });
+      const response = await apiFetch('/api/profile', { method: 'DELETE' });
       if (!response.ok) await readResponse(response);
-      setSaved(null); setProfile(null); setDraft(null); setFile(null); setSkills(''); setReviewed(false); setDeleteRequested(false);
+      setSaved(null); setProfile(null); setDraft(null); setFile(null); if(inputRef.current)inputRef.current.value=''; setSkills(''); setReviewed(false); setDeleteRequested(false);
       setMessage('Perfil excluído do armazenamento local.');
       onProfileChange();
     } catch (cause: unknown) { setError(cause instanceof Error ? cause.message : 'Falha ao excluir.'); }
@@ -87,9 +89,10 @@ export function ResumePanel({onProfileChange}:{onProfileChange:()=>void}): React
   return <section className={styles.panel} aria-labelledby="resume-title">
     <h2 id="resume-title">Seu perfil profissional</h2>
     <p>PDF de até 5 MB e 20 páginas, com texto selecionável. Processamento local, sem envio a provedores de IA.</p>
+    {PUBLIC_MODE && <p>Seu PDF e perfil ficam na memória deste navegador. Nenhum currículo é enviado ao servidor. Recarregar ou fechar esta página descarta seu perfil.</p>}
     <div className={styles.upload}>
       <label htmlFor="resume-file">Currículo em PDF</label>
-      <input id="resume-file" type="file" accept=".pdf,application/pdf" disabled={busy} onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+      <input ref={inputRef} id="resume-file" type="file" accept=".pdf,application/pdf" disabled={busy} onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
       <button type="button" disabled={busy || !file} onClick={() => void upload()}>Extrair e revisar</button>
     </div>
     <p role="status" aria-live="polite">{message}</p>

@@ -1,3 +1,4 @@
+import { apiFetch, PUBLIC_MODE } from '../services/api';
 import { useEffect, useRef, useState } from 'react';
 import { DEFAULT_WEIGHTS, jobsResponseSchema, matchesResponseSchema, weightsSchema, type Criterion, type Job, type JobsResponse, type MatchAnalysis, type MatchesResponse, type MatchWeights } from '@devjob/contracts';
 import styles from './JobsPanel.module.css';
@@ -49,7 +50,7 @@ export function JobsPanel({profileRevision}:{profileRevision:number}):React.JSX.
   useEffect(()=>{matchGeneration.current++;setMatches(null);setFilters((current)=>({...current,minScore:0,minCoverage:0,scoreState:'all',sort:'recent'}));setRecentPage(1);setUnknownPage(1);},[profileRevision]);
   useEffect(()=> {
     const controller = new AbortController();
-    fetch('/api/jobs',{signal:controller.signal}).then(async(response)=>{if(!response.ok)throw new Error(); const body:unknown=await response.json();return jobsResponseSchema.parse(body);})
+    apiFetch('/api/jobs',{signal:controller.signal}).then(async(response)=>{if(!response.ok)throw new Error(); const body:unknown=await response.json();return jobsResponseSchema.parse(body);})
       .then((result)=>{if(!controller.signal.aborted)setData(result);})
       .catch(()=>{if(!controller.signal.aborted)setError('Não foi possível carregar as vagas. Verifique a API.');})
       .finally(()=>{if(!controller.signal.aborted)setBusy(false);});
@@ -58,19 +59,19 @@ export function JobsPanel({profileRevision}:{profileRevision:number}):React.JSX.
   async function refresh():Promise<void> {
     setBusy(true);setOperation('Consultando fontes…');setError('');invalidate();
     try {
-      const response = await fetch('/api/jobs/refresh',{method:'POST'});
+      const response = await apiFetch('/api/jobs/refresh',{method:'POST'});
       if(!response.ok) throw new Error();
       const body:unknown = await response.json(); setData(jobsResponseSchema.parse(body));
     } catch {setError('Não foi possível consultar as fontes. Tente novamente; a janela de atualização é preservada após falhas.');}
     finally {setBusy(false);}
   }
-  async function reloadCache():Promise<void>{setBusy(true);setOperation('Carregando lista do cache…');setError('');invalidate();try{const response=await fetch('/api/jobs');if(!response.ok)throw new Error();const body:unknown=await response.json();setData(jobsResponseSchema.parse(body));}catch{setError('Não foi possível carregar a lista do cache.');}finally{setBusy(false);}}
+  async function reloadCache():Promise<void>{setBusy(true);setOperation('Carregando lista do cache…');setError('');invalidate();try{const response=await apiFetch('/api/jobs');if(!response.ok)throw new Error();const body:unknown=await response.json();setData(jobsResponseSchema.parse(body));}catch{setError('Não foi possível carregar a lista do cache.');}finally{setBusy(false);}}
   async function calculate():Promise<void> {
     if(!weightsSchema.safeParse(weights).success){setError('Os pesos devem ser inteiros entre 0 e 100 e somar 100.');return;}
     setBusy(true);setOperation('Calculando compatibilidade…');setError('');setMatches(null);
     const generation=++matchGeneration.current;
     try {
-      const response=await fetch('/api/matches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({weights})});
+      const response=await apiFetch('/api/matches',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({weights})});
       const body:unknown=await response.json();
       if(!response.ok)throw new Error(response.status===409?'Salve um perfil revisado antes de calcular compatibilidade.':'Não foi possível calcular a compatibilidade.');
       const result=matchesResponseSchema.parse(body);
@@ -88,7 +89,7 @@ export function JobsPanel({profileRevision}:{profileRevision:number}):React.JSX.
     <h2 id="jobs-title">Dashboard de oportunidades</h2>
     <p>Front-end, React, TypeScript e JavaScript. Prioridade para júnior e pleno; vagas sem senioridade ficam sinalizadas.</p>
     <div className={styles.metrics} aria-label="Resumo da lista carregada"><div><strong>{recent.length}</strong><span>Recentes confirmadas</span></div><div><strong>{uncertain.length}</strong><span>Datas incertas</span></div><div><strong>{[...recent,...uncertain].filter((result)=>result.job.eligibility==='unconfirmed').length}</strong><span>Elegibilidade pendente</span></div><div><strong>{[...recent,...uncertain].filter((result)=>result.analysis?.score!==null&&result.analysis!==null).length}</strong><span>Com score calculável</span></div></div>
-    <button disabled={busy} onClick={()=>void refresh()}>Consultar fontes</button>
+    <button disabled={busy} onClick={()=>void refresh()}>{PUBLIC_MODE?'Carregar última publicação':'Consultar fontes'}</button>
     <button disabled={busy} onClick={()=>void reloadCache()}>Recarregar lista do cache</button>
     <AutomationPanel/>
     <form onSubmit={(event)=>{event.preventDefault();void calculate();}}>

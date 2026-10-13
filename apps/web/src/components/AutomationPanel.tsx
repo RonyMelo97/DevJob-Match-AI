@@ -1,11 +1,12 @@
+import { apiFetch, PUBLIC_MODE } from '../services/api';
 import { useEffect,useState } from 'react';
 import { automationStatusSchema,type AutomationStatus,type JobRun } from '@devjob/contracts';
 
 const labels:Record<JobRun['status'],string>={running:'Em andamento',success:'Sucesso',partial:'Falha parcial',failed:'Falha',interrupted:'Interrompida'};
-export function AutomationPanel():React.JSX.Element{
+function LocalAutomationPanel():React.JSX.Element{
   const [status,setStatus]=useState<AutomationStatus|null>(null);const [busy,setBusy]=useState<boolean>(false);const [error,setError]=useState<string>('');
-  useEffect(()=>{const controller=new AbortController();let pending=false;async function load():Promise<void>{if(pending)return;pending=true;try{const response=await fetch('/api/jobs/automation',{signal:controller.signal});if(!response.ok)throw new Error();const body:unknown=await response.json();if(!controller.signal.aborted){setStatus(automationStatusSchema.parse(body));setError('');}}catch{if(!controller.signal.aborted)setError('Não foi possível ler o agendamento.');}finally{pending=false;}}void load();const timer=setInterval(()=>void load(),60_000);return()=>{controller.abort();clearInterval(timer);};},[]);
-  async function toggle():Promise<void>{if(!status)return;setBusy(true);setError('');try{const response=await fetch('/api/jobs/automation',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:!status.enabled})});if(!response.ok)throw new Error();const body:unknown=await response.json();setStatus(automationStatusSchema.parse(body));}catch{setError('Não foi possível alterar o agendamento.');}finally{setBusy(false);}}
+  useEffect(()=>{const controller=new AbortController();let pending=false;async function load():Promise<void>{if(pending)return;pending=true;try{const response=await apiFetch('/api/jobs/automation',{signal:controller.signal});if(!response.ok)throw new Error();const body:unknown=await response.json();if(!controller.signal.aborted){setStatus(automationStatusSchema.parse(body));setError('');}}catch{if(!controller.signal.aborted)setError('Não foi possível ler o agendamento.');}finally{pending=false;}}void load();const timer=setInterval(()=>void load(),60_000);return()=>{controller.abort();clearInterval(timer);};},[]);
+  async function toggle():Promise<void>{if(!status)return;setBusy(true);setError('');try{const response=await apiFetch('/api/jobs/automation',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:!status.enabled})});if(!response.ok)throw new Error();const body:unknown=await response.json();setStatus(automationStatusSchema.parse(body));}catch{setError('Não foi possível alterar o agendamento.');}finally{setBusy(false);}}
   return <details><summary>Atualização automática e histórico</summary>
     <p>Consulta apenas fontes públicas enquanto a API está ligada, respeitando a janela de seis horas. Nenhuma chamada automática de IA.</p>
     <p>A pausa dura até reiniciar o servidor. Para manter a busca pausada após reinícios, use a configuração descrita no README.</p>
@@ -19,3 +20,5 @@ export function AutomationPanel():React.JSX.Element{
     {error&&<p role="alert">{error}</p>}
   </details>;
 }
+
+export function AutomationPanel():React.JSX.Element{return PUBLIC_MODE?<details><summary>Atualização automática das fontes públicas</summary><p>O GitHub Actions consulta as fontes a cada seis horas e publica uma fotografia das vagas. O agendamento pode sofrer atrasos. Recarregar a lista lê a última publicação; não faz uma nova consulta aos portais. Nenhuma chamada automática de IA.</p><a href="https://github.com/RonyMelo97/DevJob-Match-AI/actions/workflows/pages.yml" target="_blank" rel="noreferrer">Ver histórico de atualizações</a></details>:<LocalAutomationPanel/>;}

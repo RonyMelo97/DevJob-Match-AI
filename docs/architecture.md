@@ -1,4 +1,4 @@
-# Arquitetura inicial
+# Arquitetura e evolução
 
 ## Decisão
 
@@ -58,3 +58,9 @@ Lever: https://github.com/lever/postings-api — quadros por empresa; verificar 
 Adzuna: https://developer.adzuna.com/overview — requer credenciais e validação de cobertura, quotas e termos antes da adoção.
 
 Documentação consultada em 13/10/2026. Nenhuma integração implementada; nenhuma fonte garante cobertura completa. Confirmar condições novamente na v0.3.
+
+## v1.0: publicação com dados pessoais no navegador
+
+No modo público, apiFetch encaminha operações para createPublicApi, com perfil revisado em memória e funções puras de extração, filtros e matching reutilizadas. Somente a fotografia jobs.json é carregada por GET. PDF.js executa em worker local e é carregado sob demanda. Recarregar elimina o perfil. O workflow exporta vagas públicas e publica apenas apps/web/dist, sem executar API ou ler currículos.
+
+No modo local, o adaptador mantém as rotas Fastify e a persistência revisada em private. HOST aceita somente 127.0.0.1. A IA opcional não é acessível no deploy estático. Separar execução por ambiente permite publicação gratuita sem abrir um serviço pessoal sem autenticação.

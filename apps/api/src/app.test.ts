@@ -4,12 +4,15 @@ import { buildApp } from './app.js';
 import { parseEnv } from './config/env.js';
 
 describe('API foundation', () => {
+  it.each(['0.0.0.0','192.168.1.1'])('keeps the personal API on loopback (%s rejected)', (HOST) => {
+    expect(() => parseEnv({ HOST })).toThrow('HOST');
+  });
   it('returns the validated health contract', async () => {
     const app = buildApp(parseEnv({}));
     try {
       const response = await app.inject({ method: 'GET', url: '/health' });
       expect(response.statusCode).toBe(200);
-      expect(healthResponseSchema.parse(response.json())).toEqual({ status: 'ok', service: 'devjob-api', version: '0.7.0' });
+      expect(healthResponseSchema.parse(response.json())).toEqual({ status: 'ok', service: 'devjob-api', version: '1.0.0' });
     } finally { await app.close(); }
   });
   it.each(['0', '65536', 'abc'])('rejects invalid port %s', (PORT) => {

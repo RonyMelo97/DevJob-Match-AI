@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const envSchema = z.object({
-  HOST: z.string().min(1).default('127.0.0.1'),
+  HOST: z.literal('127.0.0.1').default('127.0.0.1'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3001),
   CORS_ORIGIN: z.url().default('http://localhost:5173'),
   GREENHOUSE_BOARDS: z.string().default('').transform((value) => value.split(',').map((board) => board.trim()).filter(Boolean)).pipe(z.array(z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/)).max(5)),

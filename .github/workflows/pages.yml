@@ -1,0 +1,52 @@
+name: Publish public dashboard
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: public-pages
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build -w @devjob/api
+      - uses: actions/cache/restore@v4
+        with:
+          path: .public-cache
+          key: public-jobs-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: public-jobs-
+      - run: node scripts/export-public-jobs.mjs
+      - uses: actions/cache/save@v4
+        if: always() && hashFiles('.public-cache/jobs.json') != ''
+        with:
+          path: .public-cache
+          key: public-jobs-${{ github.run_id }}-${{ github.run_attempt }}
+      - run: npm run build -w @devjob/web
+        env:
+          VITE_PUBLIC_MODE: 'true'
+          VITE_BASE_PATH: /DevJob-Match-AI/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: apps/web/dist
+      - uses: actions/deploy-pages@v4
+        id: deployment

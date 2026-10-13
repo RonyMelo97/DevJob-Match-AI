@@ -1,8 +1,35 @@
 # DevJob Match AI
 
-Rastreador de vagas Front-end com compatibilidade explicável. Versão atual: **0.7.0**, busca periódica, dashboard, filtros, currículo, compatibilidade por regras e IA opcional.
+Rastreador de vagas Front-end com compatibilidade explicável. Versão atual: **1.0.0**, MVP com busca periódica, dashboard, currículo privado, compatibilidade explicável e publicação no GitHub Pages.
 
-## Busca periódica e histórico
+## Usar online, gratuitamente
+
+[Abrir o DevJob Match AI](https://ronymelo97.github.io/DevJob-Match-AI/).
+
+No site público, o PDF é extraído no navegador com PDF.js. O perfil revisado fica somente na memória desta aba; **recarregar ou fechar a página descarta o perfil**. PDF, texto e perfil não são enviados ao GitHub, portais de vagas ou IA. Não há login nem cobrança para buscar ou calcular compatibilidade. IA opcional permanece no modo local, desligada por padrão.
+
+O GitHub Actions consulta fontes públicas a cada seis horas e publica apenas a fotografia das vagas e os arquivos estáticos. O agendamento pode atrasar. O botão Carregar última publicação lê esse JSON; não antecipa consultas aos portais. Datas são reavaliadas ao ler, para anúncios antigos não permanecerem como recentes. Remotive e cinco quadros Greenhouse públicos (xpinc, bees, ifoodcarreiras, vtex e nubank) são as fontes iniciais; a lista pode estar vazia e não representa toda a internet.
+
+Um adaptador de API permite manter a mesma interface nos dois modos: no modo local usa Fastify; no público executa perfil e score em memória, compartilhando as funções puras do backend. PDF.js e seu worker são carregados somente quando o usuário extrai um arquivo. Não há analytics, armazenamento de perfil no navegador nem candidatura automática.
+
+## Deploy e reprodução
+
+O workflow [pages.yml](.github/workflows/pages.yml) valida lint, tipos e testes, coleta vagas e publica **somente apps/web/dist**. Cache de fontes fica separado em .public-cache; a janela de consulta é persistida antes da rede. Falha de fonte preserva anúncios anteriores e é sinalizada; sem qualquer coleta inicial bem-sucedida o deploy falha. Ações agendadas dependem do serviço GitHub e podem ser pausadas por inatividade do repositório.
+
+Para habilitar em um fork, configure Settings → Pages → Source → GitHub Actions e ajuste VITE_BASE_PATH no workflow para o nome do repositório. Nenhuma chave de IA é necessária no Actions. Para reproduzir o build público:
+
+~~~powershell
+npm ci
+npm run build -w @devjob/api
+node scripts/export-public-jobs.mjs
+$env:VITE_PUBLIC_MODE='true'
+$env:VITE_BASE_PATH='/DevJob-Match-AI/'
+npm run build -w @devjob/web
+~~~
+
+Limites do modo público: 5 MB, 20 páginas, 100 mil caracteres e 30 segundos por PDF; sem OCR, senha ou persistência de perfil. No modo local a extração usa processo Node isolado e o perfil revisado persiste no computador. **A API pessoal é limitada a 127.0.0.1 e não é hospedada publicamente**. Banco PostgreSQL, autenticação e isolamento por usuário serão necessários para uma futura API compartilhada.
+
+## Busca periódica e histórico — modo local
 
 Com a API ligada, `JOBS_AUTO_REFRESH=true` inicia o agendador. Ele lê a próxima janela persistida e espera até a consulta permitida, sem ignorar as seis horas da Remotive. Para manter desativado após reiniciar, configure `JOBS_AUTO_REFRESH=false` em `apps/api/.env`.
 
@@ -76,7 +103,7 @@ O comando `start` requer build e deve ser executado com o servidor de desenvolvi
 
 Não adicione currículos reais, dados pessoais ou segredos ao Git. `.env`, PDFs, uploads e a pasta `private` são ignorados. Use dados sintéticos nos testes. O PDF é enviado somente à sua API local e descartado após extração. Não há chamadas a provedores de IA.
 
-O perfil revisado é salvo em `private/resumes/profile.json` na raiz, incluindo apenas os campos editados e a data de confirmação. O texto bruto não é salvo. O arquivo usa as permissões do usuário do sistema: não é criptografado. Não há autenticação; mantenha `HOST=127.0.0.1` e não publique esta versão. Perfis são de usuário único, com uma instância da API. PostgreSQL e autenticação serão necessários antes de suporte público ou multiusuário.
+O perfil revisado é salvo em `private/resumes/profile.json` na raiz, incluindo apenas os campos editados e a data de confirmação. O texto bruto não é salvo. O arquivo usa as permissões do usuário do sistema: não é criptografado. Não há autenticação; mantenha `HOST=127.0.0.1` e não publique a API pessoal. Perfis são de usuário único, com uma instância da API. PostgreSQL e autenticação serão necessários antes de suporte público ou multiusuário.
 
 ## Currículo: upload e revisão
 
@@ -133,6 +160,6 @@ O workspace reúne os projetos e permite scripts comuns. TypeScript verifica tip
 
 Use `main` para entregas estáveis e `develop` para desenvolvimento. O primeiro snapshot reúne o código até a v0.3.0. As etapas anteriores estão documentadas, sem snapshots próprios. Veja o [changelog](CHANGELOG.md). Nas próximas entregas, valide `develop` e integre por PR ou merge revisado em `main`.
 
-Commit do primeiro snapshot: `feat: establish v0.3.0 baseline`. O usuário autorizou publicar o projeto e suas próximas entregas no GitHub em 13/10/2026. Cada versão continua exigindo aprovação antes de iniciar a seguinte. Os registros das entregas anteriores preservam o estado do Git no momento em que foram escritos.
+Commit do primeiro snapshot: `feat: establish v0.3.0 baseline`. O usuário autorizou publicar o projeto e suas próximas entregas no GitHub em 13/10/2026. O usuário autorizou concluir as etapas restantes sem confirmações adicionais em 13/10/2026. Os registros das entregas anteriores preservam o estado do Git no momento em que foram escritos.
 
 O workflow `.github/workflows/ci.yml` verifica instalação, lint, tipos, testes e build em pushes para main/develop e em pull requests. Resultados locais não confirmam execução do GitHub Actions; confira a aba Actions após publicar.

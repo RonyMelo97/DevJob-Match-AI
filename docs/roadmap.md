@@ -1,6 +1,6 @@
 # Roadmap
 
-Cada versão exige aprovação antes de iniciar a seguinte. Cada entrega documentará arquivos, decisões, validação e commit sugerido.
+Em 13/10/2026, o usuário autorizou concluir as etapas restantes sem confirmações adicionais. Cada entrega documentará arquivos, decisões, validação e commit sugerido.
 
 | Versão | Objetivo e tarefas | Aceite e testes | Commit sugerido |
 | --- | --- | --- | --- |
@@ -26,3 +26,7 @@ Cada versão exige aprovação antes de iniciar a seguinte. Cada entrega documen
 - Nenhum currículo real usado em código ou testes.
 
 Banco, upload, fontes reais, matching, IA, dashboard e agendamento ficam fora desta entrega.
+
+## Estado do MVP
+
+Etapas v0.1 a v1.0 implementadas; v0.1/v0.2 documentadas no primeiro snapshot v0.3. O modo público usa processamento no navegador e deploy estático; backend/IA permanecem locais. Veja o README e os registros de entregas para escopo e limites.

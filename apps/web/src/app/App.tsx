@@ -1,3 +1,4 @@
+import { apiFetch, PUBLIC_MODE } from '../services/api';
 import { useEffect, useState } from 'react';
 import { healthResponseSchema } from '@devjob/contracts';
 import styles from './App.module.css';
@@ -15,7 +16,7 @@ export function App(): React.JSX.Element {
     setConnection('loading');
     async function checkHealth(): Promise<void> {
       try {
-        const response = await fetch('/api/health', { signal: controller.signal });
+        const response = await apiFetch('/api/health', { signal: controller.signal });
         if (!response.ok) throw new Error('API indisponível');
         const body: unknown = await response.json();
         healthResponseSchema.parse(body);
@@ -29,11 +30,11 @@ export function App(): React.JSX.Element {
   }, [attempt]);
   const labels: Record<Connection, string> = {
     loading: 'Verificando conexão com a API…',
-    connected: 'API conectada e pronta',
+    connected: PUBLIC_MODE ? 'Modo público · currículo processado neste navegador' : 'API conectada e pronta',
     error: 'Não foi possível conectar à API. Verifique se o backend está em execução.',
   };
   return <main className={styles.container}>
-    <header className={styles.header}><a className={styles.brand} href="/">DevJob<span> Match AI</span></a><span className={styles.version}>v0.7.0</span></header>
+    <header className={styles.header}><a className={styles.brand} href={import.meta.env.BASE_URL}>DevJob<span> Match AI</span></a><span className={styles.version}>v1.0.0</span></header>
     <nav className={styles.navigation} aria-label="Navegação do dashboard"><a href="#vagas">Oportunidades</a><a href="#perfil">Meu perfil</a><a href="#sobre">Sobre o projeto</a></nav>
     <section className={styles.hero}>
       <p className={styles.eyebrow}>SEU PRÓXIMO PASSO, COM MAIS CLAREZA</p>

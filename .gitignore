@@ -9,3 +9,5 @@ private/
 *.pdf
 *.log
 *.tsbuildinfo
+
+.public-cache/

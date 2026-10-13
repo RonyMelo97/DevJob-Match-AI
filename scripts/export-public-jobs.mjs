@@ -1,0 +1,10 @@
+import { mkdir, writeFile } from 'node:fs/promises';
+import console from 'node:console';
+import { JobsService, FileJobsCache } from '../apps/api/dist/apps/api/src/modules/jobs/service.js';
+const boards=['xpinc','bees','ifoodcarreiras','vtex','nubank'];
+const service=new JobsService(new FileJobsCache('.public-cache/jobs.json'),boards);
+const data=await service.get(true,'scheduled');
+if(!data.collectedAt)throw new Error('Nenhuma fonte pública pôde ser consultada; publicação interrompida.');
+await mkdir('apps/web/public',{recursive:true});
+await writeFile('apps/web/public/jobs.json',JSON.stringify(data));
+console.log(`Fotografia pública: ${data.jobs.length} recentes, ${data.unconfirmedDates.length} com data incerta.`);

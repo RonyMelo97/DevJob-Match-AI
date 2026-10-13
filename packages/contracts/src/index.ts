@@ -7,7 +7,7 @@ export * from './automation.js';
 export const healthResponseSchema = z.object({
   status: z.literal('ok'),
   service: z.literal('devjob-api'),
-  version: z.literal('0.7.0'),
+  version: z.literal('1.0.0'),
 });
 
 export type HealthResponse = z.infer<typeof healthResponseSchema>;

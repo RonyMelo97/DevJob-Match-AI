@@ -1,15 +1,16 @@
+import { apiFetch, PUBLIC_MODE } from '../services/api';
 import { useState } from 'react';
 import { z } from 'zod';
 import { aiPreviewSchema,aiResultSchema,type AiPreview,type AiResult } from '@devjob/contracts';
 
 const labels={required:'Obrigatório',desired:'Desejável',experience:'Experiência',seniority:'Senioridade',responsibilities:'Responsabilidades',language:'Idioma'};
 async function post(path:string,input:unknown):Promise<unknown>{
-  const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)});
+  const response=await apiFetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)});
   const body:unknown=await response.json();
   if(!response.ok){const error=z.object({message:z.string()}).safeParse(body);throw new Error(error.success?error.data.message:'Falha na análise de IA.');}
   return body;
 }
-export function AiJobAnalysis({jobId}:{jobId:string}):React.JSX.Element{
+function LocalAiJobAnalysis({jobId}:{jobId:string}):React.JSX.Element{
   const [preview,setPreview]=useState<AiPreview|null>(null);
   const [result,setResult]=useState<AiResult|null>(null);
   const [confirmed,setConfirmed]=useState<boolean>(false);
@@ -44,3 +45,5 @@ export function AiJobAnalysis({jobId}:{jobId:string}):React.JSX.Element{
     </div>}
   </details>;
 }
+
+export function AiJobAnalysis({jobId}:{jobId:string}):React.JSX.Element{return PUBLIC_MODE?<p>Análise por regras gratuita. IA opcional disponível somente no modo local, com sua própria chave.</p>:<LocalAiJobAnalysis jobId={jobId}/>;}
