@@ -1,6 +1,6 @@
 {
   "name": "devjob-match-ai",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -10,7 +10,7 @@
     "dev": "concurrently -k -n api,web \"npm run dev -w @devjob/api\" \"npm run dev -w @devjob/web\"",
     "lint": "eslint .",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test -w @devjob/api",
+    "test": "npm run test --workspaces --if-present",
     "build": "npm run build --workspaces --if-present"
   },
   "engines": {

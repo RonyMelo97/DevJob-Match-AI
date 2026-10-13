@@ -3,6 +3,6 @@ import { healthResponseSchema, type HealthResponse } from '../../../../../packag
 
 export async function healthRoutes(app: FastifyInstance): Promise<void> {
   app.get('/health', async (): Promise<HealthResponse> => {
-    return healthResponseSchema.parse({ status: 'ok', service: 'devjob-api', version: '0.5.0' });
+    return healthResponseSchema.parse({ status: 'ok', service: 'devjob-api', version: '0.6.0' });
   });
 }

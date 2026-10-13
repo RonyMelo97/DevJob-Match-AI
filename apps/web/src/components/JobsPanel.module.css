@@ -17,4 +17,16 @@
 .analysis { border-top: 1px solid #334455; margin-top: 20px; padding-top: 8px; }
 .analysis h4 { color: #7ee4bc; font-size: 18px; }
 .analysis h5 { font-size: 16px; }
+.metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin: 24px 0; }
+.metrics > div { background: #0c1723; border: 1px solid #334455; border-radius: 10px; padding: 18px; }
+.metrics strong { display: block; color: #7ee4bc; font-size: 30px; }
+.metrics span { display: block; color: #b6c4d2; font-size: 13px; margin-top: 6px; }
+.panel .filters { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; padding: 20px; }
+.filters label { display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.filters input,.filters select { width: 100%; min-width: 0; font: inherit; background: #0c1723; color: #eaf1f8; border: 1px solid #718394; border-radius: 6px; padding: 10px; }
+.filters input:focus-visible,.filters select:focus-visible { outline: 3px solid #b5f6df; outline-offset: 3px; }
+.filters p { grid-column: 1/-1; margin: 0; }
+.pagination { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; margin: 16px 0; }
+@media (max-width:800px) { .metrics { grid-template-columns: repeat(2,1fr); } .panel .filters { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width:500px) { .panel .filters { grid-template-columns: 1fr; padding: 14px; } }
 @media (max-width: 600px) { .panel { padding: 18px; } .card { padding: 16px; } }

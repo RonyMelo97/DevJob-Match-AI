@@ -3,6 +3,8 @@
 .brand { color: #eaf1f8; text-decoration: none; font-weight: 750; font-size: 21px; }
 .brand span { color: #7ee4bc; }
 .version { border: 1px solid #334455; border-radius: 20px; padding: 6px 12px; color: #aebdcc; font-size: 13px; }
+.navigation { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 24px; }
+.navigation a { color: #c4d2df; text-decoration: none; border-bottom: 2px solid #7ee4bc; padding-bottom: 6px; }
 .hero { padding: 90px 0 64px; }
 .eyebrow { color: #7ee4bc; letter-spacing: 2px; font-size: 12px; font-weight: 700; }
 .hero h1 { font-size: clamp(32px, 4.6vw, 56px); letter-spacing: -2px; line-height: 1.15; margin: 20px 0; }

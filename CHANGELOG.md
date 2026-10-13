@@ -1,5 +1,15 @@
 # Histórico de entregas
 
+## 0.6.0 - 2026-10-13
+
+- Dashboard com indicadores e atalhos para oportunidades/perfil.
+- Filtros locais combinados e ordenação por publicação, empresa, score ou cobertura.
+- Paginação independente de vagas recentes e datas incertas.
+- Estados de carregamento, erro, vazio e ausência de correspondência.
+- Testes de frontend incorporados ao comando raiz e ao CI.
+
+Detalhes: [entrega 0.6.0](docs/releases/v0.6.0.md).
+
 ## 0.5.0 - 2026-10-13
 
 - IA opcional e desativada por padrão; busca e score continuam independentes.

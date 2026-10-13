@@ -6,7 +6,7 @@ export * from './ai.js';
 export const healthResponseSchema = z.object({
   status: z.literal('ok'),
   service: z.literal('devjob-api'),
-  version: z.literal('0.5.0'),
+  version: z.literal('0.6.0'),
 });
 
 export type HealthResponse = z.infer<typeof healthResponseSchema>;

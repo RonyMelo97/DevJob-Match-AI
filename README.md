@@ -1,6 +1,18 @@
 # DevJob Match AI
 
-Rastreador de vagas Front-end com compatibilidade explicável. Versão atual: **0.5.0**, currículo, fontes públicas, compatibilidade por regras e IA opcional.
+Rastreador de vagas Front-end com compatibilidade explicável. Versão atual: **0.6.0**, dashboard, filtros, currículo, fontes públicas, compatibilidade por regras e IA opcional.
+
+## Dashboard e filtros
+
+Atalhos levam às oportunidades, perfil e informações do projeto. Indicadores mostram vagas recentes confirmadas, datas incertas, elegibilidade pendente e scores calculáveis na lista carregada, antes dos filtros da interface.
+
+Busque por cargo, empresa, tecnologia ou localização; termos são combinados, ignorando caixa e acentos. Combine senioridade, modalidade, elegibilidade, fonte e estado do score. Após calcular compatibilidade, filtre por score/cobertura mínima e ordene por compatibilidade ou cobertura. Também pode ordenar por publicação na fonte ou empresa. Score zero não é score ausente; mínimos positivos excluem resultados sem percentual calculável. Campos desconhecidos continuam sinalizados.
+
+Cada grupo possui paginação independente de dez vagas. Datas incertas ficam separadas mesmo após ordenar por score; filtros não tornam uma data comprovada. Limpar filtros restaura a lista carregada. Atualizar fontes, alterar pesos ou confirmar mudanças no perfil invalida análises e filtros por percentual. Nenhum filtro dispara consulta externa ou chamada de IA; não persistimos os termos pesquisados.
+
+O dashboard é uma página React com links internos e CSS responsivo. Não precisamos adicionar React Router para links na mesma página nem TanStack Query apenas para filtrar dados locais; essas opções continuam disponíveis se surgirem rotas ou necessidades de cache cliente mais complexas.
+
+Verificação manual: abra http://127.0.0.1:5173, navegue pelos atalhos com teclado, combine filtros, limpe-os, confira datas incertas, mude páginas e revise o layout em 360px. Falha de conexão, lista vazia e filtro sem correspondência têm mensagens próprias. Tests automatizados verificam lógica de filtros/paginação; revisão visual e navegação real de teclado permanecem necessárias.
 
 ## IA opcional e custos
 
