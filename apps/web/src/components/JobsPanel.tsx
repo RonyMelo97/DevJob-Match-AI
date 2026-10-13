@@ -52,12 +52,12 @@ export function JobsPanel({profileRevision}:{profileRevision:number}):React.JSX.
     const controller = new AbortController();
     apiFetch('/api/jobs',{signal:controller.signal}).then(async(response)=>{if(!response.ok)throw new Error(); const body:unknown=await response.json();return jobsResponseSchema.parse(body);})
       .then((result)=>{if(!controller.signal.aborted)setData(result);})
-      .catch(()=>{if(!controller.signal.aborted)setError('Não foi possível carregar as vagas. Verifique a API.');})
+      .catch(()=>{if(!controller.signal.aborted)setError(PUBLIC_MODE?'Não foi possível carregar a publicação de vagas. Tente recarregar a lista.':'Não foi possível carregar as vagas. Verifique a API.');})
       .finally(()=>{if(!controller.signal.aborted)setBusy(false);});
     return ()=>controller.abort();
   },[]);
   async function refresh():Promise<void> {
-    setBusy(true);setOperation('Consultando fontes…');setError('');invalidate();
+    setBusy(true);setOperation(PUBLIC_MODE?'Carregando última publicação…':'Consultando fontes…');setError('');invalidate();
     try {
       const response = await apiFetch('/api/jobs/refresh',{method:'POST'});
       if(!response.ok) throw new Error();
@@ -90,7 +90,7 @@ export function JobsPanel({profileRevision}:{profileRevision:number}):React.JSX.
     <p>Front-end, React, TypeScript e JavaScript. Prioridade para júnior e pleno; vagas sem senioridade ficam sinalizadas.</p>
     <div className={styles.metrics} aria-label="Resumo da lista carregada"><div><strong>{recent.length}</strong><span>Recentes confirmadas</span></div><div><strong>{uncertain.length}</strong><span>Datas incertas</span></div><div><strong>{[...recent,...uncertain].filter((result)=>result.job.eligibility==='unconfirmed').length}</strong><span>Elegibilidade pendente</span></div><div><strong>{[...recent,...uncertain].filter((result)=>result.analysis?.score!==null&&result.analysis!==null).length}</strong><span>Com score calculável</span></div></div>
     <button disabled={busy} onClick={()=>void refresh()}>{PUBLIC_MODE?'Carregar última publicação':'Consultar fontes'}</button>
-    <button disabled={busy} onClick={()=>void reloadCache()}>Recarregar lista do cache</button>
+    {!PUBLIC_MODE&&<button disabled={busy} onClick={()=>void reloadCache()}>Recarregar lista do cache</button>}
     <AutomationPanel/>
     <form onSubmit={(event)=>{event.preventDefault();void calculate();}}>
       <details><summary>Configurar pesos da compatibilidade</summary><fieldset disabled={busy}><legend>Pesos (soma obrigatória: 100%)</legend>
@@ -105,7 +105,7 @@ export function JobsPanel({profileRevision}:{profileRevision:number}):React.JSX.
     {error&&<p role="alert" className={styles.warning}>{error}</p>}
     {data&&<>
       <p>Última coleta bem-sucedida: {data.collectedAt?new Date(data.collectedAt).toLocaleString('pt-BR'):'ainda não realizada'}.</p>
-      {data.nextRefreshAt&&<p>Nova consulta externa disponível a partir de {new Date(data.nextRefreshAt).toLocaleString('pt-BR')}. Antes disso, o botão utiliza o cache.</p>}
+      {data.nextRefreshAt&&<p>{PUBLIC_MODE?'Próxima janela de coleta pública a partir de':'Nova consulta externa disponível a partir de'} {new Date(data.nextRefreshAt).toLocaleString('pt-BR')}. {PUBLIC_MODE?'O agendamento pode atrasar; o botão lê a última publicação.':'Antes disso, o botão utiliza o cache.'}</p>}
       <ul>{data.sources.map((source)=><li key={source.name}><strong>{source.name} ({source.status==='ok'?'consultada':source.status==='error'?'falha':'não consultada'}):</strong> {source.message}</li>)}</ul>
       <JobFilters filters={filters} onChange={changeFilters} hasAnalysis={matches!==null}/>
       <h3>Publicadas nos últimos sete dias</h3>

@@ -29,7 +29,7 @@ export function App(): React.JSX.Element {
     return () => controller.abort();
   }, [attempt]);
   const labels: Record<Connection, string> = {
-    loading: 'Verificando conexão com a API…',
+    loading: PUBLIC_MODE ? 'Preparando o modo público…' : 'Verificando conexão com a API…',
     connected: PUBLIC_MODE ? 'Modo público · currículo processado neste navegador' : 'API conectada e pronta',
     error: 'Não foi possível conectar à API. Verifique se o backend está em execução.',
   };

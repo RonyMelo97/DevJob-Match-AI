@@ -7,7 +7,7 @@ export function createPublicApi(loadJobs: () => Promise<unknown>, extract: (file
     async function jobs() {
         const data = jobsResponseSchema.parse(await loadJobs());
         const all = [...data.jobs, ...data.unconfirmedDates].map(job => classify(job, new Date())).filter(job => job.recency !== 'excluded' && job.eligibility !== 'excluded' && job.seniority !== 'senior');
-        return { ...data, jobs: all.filter(job => job.recency === 'recent'), unconfirmedDates: all.filter(job => job.recency === 'unknown') };
+        return { ...data, discarded: data.discarded + data.jobs.length + data.unconfirmedDates.length - all.length, jobs: all.filter(job => job.recency === 'recent'), unconfirmedDates: all.filter(job => job.recency === 'unknown') };
     }
     return async (path: string, init: RequestInit = {}): Promise<Response> => {
         if (init.signal?.aborted)
