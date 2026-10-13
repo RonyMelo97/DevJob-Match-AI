@@ -4,7 +4,7 @@ import { apiFetch } from '../services/api';
 import { analyzeMatch } from '../../../api/src/modules/matching/engine';
 
 const labels={required:'Tecnologias obrigatórias',desired:'Tecnologias desejáveis',experience:'Experiência',seniority:'Senioridade',responsibilities:'Responsabilidades',language:'Idioma'};
-const findings=[
+export const findings=[
   {company:'Deliver IT · Gupy',title:'Desenvolvedor Frontend React Pleno',url:'https://deliverit.gupy.io/jobs/12649638?jobBoardSource=gupy_public_page',note:'100% remoto. React, TypeScript e APIs; exige também testes e gerenciamento de estado. Publicação sem data confirmada.'},
   {company:'Cadastra · Gupy',title:'Desenvolvedor Front End Pleno',url:'https://cadastra.gupy.io/jobs/12395356',note:'React, HTML, CSS e TypeScript; exige VTEX e Next.js. Modalidade específica e data precisam ser confirmadas.'},
   {company:'SCCON · LinkedIn',title:'Desenvolvedor Front-End Pleno · São Paulo',url:'https://br.linkedin.com/jobs/view/desenvolvedor-front-end-pleno-at-sccon-4460144771',note:'HTML, CSS e JavaScript, mas exige experiência com Angular. Página informa “há 2 semanas”; não confirmado como recente.'},

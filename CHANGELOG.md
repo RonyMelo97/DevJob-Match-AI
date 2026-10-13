@@ -1,5 +1,12 @@
 # Histórico de entregas
 
+## Após 1.0.0 — interface simplificada
+
+- Tabela como tela principal: vaga, empresa, local/data, fit e candidatura.
+- Exportação CSV das linhas visíveis, com proteção contra fórmulas injetadas.
+- Currículo e buscas externas recolhidos, sem dashboard extenso na abertura.
+
+
 ## Após 1.0.0 — descoberta de vagas no Brasil
 
 - Buscas externas para LinkedIn, Indeed, Gupy, InfoJobs, Vagas.com e Catho, sem apresentar atalhos como coleta automática.

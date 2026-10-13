@@ -2,6 +2,12 @@
 
 Rastreador de vagas Front-end com compatibilidade explicável. Versão atual: **1.0.0**, MVP com busca periódica, dashboard, currículo privado, compatibilidade explicável e publicação no GitHub Pages.
 
+## Interface simples — tabela e planilha
+
+A tela principal mostra vaga/empresa, local/data, fit e link de candidatura. Use **Calcular fit com meu currículo** após salvar o perfil revisado. Vagas da pesquisa pontual não têm descrição completa no app; ficam sem percentual até você colar a descrição em Buscar em outros sites.
+
+**Baixar planilha CSV** exporta as linhas visíveis em UTF-8 com BOM e separador ponto e vírgula para Excel/Google Sheets. Campos desconhecidos permanecem desconhecidos e caracteres que poderiam executar fórmulas são neutralizados. O currículo e a comparação manual ficam recolhidos. A candidatura é feita no portal original.
+
 ## Usar online, gratuitamente
 
 [Abrir o DevJob Match AI](https://ronymelo97.github.io/DevJob-Match-AI/).
