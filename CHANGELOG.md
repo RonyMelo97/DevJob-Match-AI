@@ -1,5 +1,15 @@
 # Histórico de entregas
 
+## 1.0.0 - 2026-10-13
+
+- MVP no GitHub Pages, com publicação e coleta agendada pelo Actions.
+- PDF e perfil processados na memória do navegador; score usa o mesmo motor por regras.
+- Perfil público descartado ao recarregar, sem envio a terceiros.
+- API pessoal restrita a loopback; IA opcional exclusiva do modo local.
+- Testes de privacidade do adaptador, recência no cliente e configuração de host.
+
+Detalhes: [entrega 1.0.0](docs/releases/v1.0.0.md).
+
 ## 0.7.0 - 2026-10-13
 
 - Agendamento no backend com janela persistida de seis horas.
