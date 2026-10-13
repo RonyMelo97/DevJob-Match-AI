@@ -1,0 +1,14 @@
+.panel { border: 1px solid #334455; border-radius: 14px; padding: 28px; margin-bottom: 48px; background: #142231; }
+.panel p, .panel li { color: #b6c4d2; line-height: 1.7; overflow-wrap: anywhere; }
+.panel button { background: #7ee4bc; color: #10251f; border: 0; border-radius: 8px; padding: 12px 16px; font: inherit; font-weight: 600; cursor: pointer; }
+.panel button:disabled { opacity: .5; cursor: wait; }
+.list { display: grid; gap: 16px; margin: 20px 0; }
+.card { background: #0c1723; border: 1px solid #334455; border-radius: 10px; padding: 22px; overflow-wrap: anywhere; }
+.card h3 { margin: 8px 0; line-height: 1.5; }
+.card a, .panel summary { color: #7ee4bc; }
+.panel .warning { color: #ffcd99; }
+.panel .source { color: #9eb3c4; font-size: 13px; }
+.panel details { margin: 16px 0; }
+.panel summary { cursor: pointer; }
+.panel summary:focus-visible { outline: 3px solid #b5f6df; outline-offset: 3px; }
+@media (max-width: 600px) { .panel { padding: 18px; } .card { padding: 16px; } }

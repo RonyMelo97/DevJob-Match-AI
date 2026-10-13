@@ -1,0 +1,18 @@
+.panel { margin-bottom: 48px; border: 1px solid #334455; border-radius: 14px; padding: 28px; background: #142231; }
+.panel p, .panel li { color: #b6c4d2; line-height: 1.6; }
+.panel button { background: #7ee4bc; border: 0; border-radius: 8px; padding: 12px 16px; font: inherit; font-weight: 600; color: #10251f; cursor: pointer; margin-top: 12px; }
+.panel button:disabled { opacity: .5; cursor: not-allowed; }
+.upload { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.upload input { max-width: 100%; }
+.field { display: block; margin: 20px 0; color: #eaf1f8; }
+.field textarea { display: block; width: 100%; margin-top: 8px; padding: 12px; border: 1px solid #546879; border-radius: 8px; background: #0c1723; color: #eaf1f8; font: inherit; line-height: 1.6; resize: vertical; }
+.field textarea:focus-visible, .panel input:focus-visible, .panel summary:focus-visible { outline: 3px solid #b5f6df; outline-offset: 3px; }
+.review { display: flex; gap: 10px; align-items: flex-start; line-height: 1.6; }
+.panel .error { color: #ffbdaf; }
+.source { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 400px; overflow: auto; font: inherit; color: #c4d2df; }
+.panel details { margin: 16px 0; overflow-wrap: anywhere; }
+.panel summary { cursor: pointer; color: #7ee4bc; }
+.panel .secondary { background: transparent; border: 1px solid #718394; color: #eaf1f8; margin-left: 10px; }
+.panel .danger { background: #ffbdaf; color: #42150c; }
+.deletion { border-top: 1px solid #334455; margin-top: 24px; padding-top: 12px; }
+@media (max-width: 600px) { .panel { padding: 18px; } .panel .secondary { margin-left: 0; margin-right: 8px; } }
