@@ -43,6 +43,12 @@ O timer roda no processo Node.js e depende de computador/API ativos. Ao fechar o
 
 Agendamento nunca chama IA, nunca envia currículo e não faz candidaturas. Falhas de fonte respeitam cooldown; falhas de armazenamento são sinalizadas e verificadas depois de um minuto, sem consultar a fonte antes de persistir a janela.
 
+## Busca nos portais brasileiros
+
+O painel oferece buscas externas no LinkedIn (São Paulo ou remoto/Brasil), Indeed, Gupy, InfoJobs, Vagas.com e Catho, com opções Front-end, React/TypeScript, HTML/CSS/JavaScript e WordPress/PHP/SEO. Esses atalhos não são integrações automáticas. Resultados dependem do portal e podem exigir login; não há scraping autenticado ou bypass.
+
+Anúncios da pesquisa pontual de 13/10/2026 são apresentados com limitações de data/disponibilidade. Cole a descrição original em **Comparar uma vaga de qualquer portal com meu currículo** para calcular por regras no navegador usando o perfil revisado. A comparação usa pesos padrão; não confirma localização/data e não transmite currículo ao portal ou à IA. Não armazenamos a descrição colada.
+
 ## Busca aberta para testar a coleta
 
 Marque **Busca aberta para teste: incluir vagas fora dos critérios** em Oportunidades. Uma seção adicional mostra anúncios reais que foram descartados por data, senioridade ou localização, com motivo explícito e link original. Não altera o ranking padrão, não comprova elegibilidade e não faz nova consulta aos fornecedores. Funciona com o cache local e com a fotografia pública publicada pelo Actions.

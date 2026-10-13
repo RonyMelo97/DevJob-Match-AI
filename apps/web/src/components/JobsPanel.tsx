@@ -4,6 +4,7 @@ import { DEFAULT_WEIGHTS, jobsResponseSchema, matchesResponseSchema, weightsSche
 import styles from './JobsPanel.module.css';
 import { AiJobAnalysis } from './AiJobAnalysis';
 import { JobFilters } from './JobFilters';
+import { PortalSearchPanel } from './PortalSearchPanel';
 import { AutomationPanel } from './AutomationPanel';
 import { DEFAULT_FILTERS,filterJobs,paginateJobs,type JobFilters as Filters,type JobResult } from '../features/jobs/filter-jobs';
 
@@ -13,7 +14,7 @@ const criteriaLabels:Record<Criterion,string>={required:'Tecnologias obrigatóri
 const statusLabels={met:'Atendido',partial:'Parcialmente atendido',not_met:'Não atendido',insufficient:'Informação insuficiente'};
 function JobCard({job,analysis}:{job:Job;analysis?:MatchAnalysis}):React.JSX.Element {
   return <article className={styles.card}>
-    <p className={styles.source}>{job.source === 'remotive' ? 'Fonte: Remotive' : 'Fonte: Greenhouse'}</p>
+    <p className={styles.source}>{job.source === 'remotive' ? 'Fonte: Remotive' : job.source==='greenhouse'?'Fonte: Greenhouse':'Descrição fornecida pelo usuário'}</p>
     <h3><a href={job.url} target="_blank" rel="noopener noreferrer">{job.title}</a></h3>
     <p>{job.company} · {levels[job.seniority]}</p>
     <p>{mode[job.modality]} · {job.candidateLocation ?? 'Localização não informada'}</p>
@@ -94,6 +95,7 @@ export function JobsPanel({profileRevision}:{profileRevision:number}):React.JSX.
     {!PUBLIC_MODE&&<button disabled={busy} onClick={()=>void reloadCache()}>Recarregar lista do cache</button>}
     <label><input type="checkbox" checked={broadSearch} onChange={event=>setBroadSearch(event.target.checked)}/> Busca aberta para teste: incluir vagas fora dos critérios</label>
     <AutomationPanel/>
+    <PortalSearchPanel/>
     <form onSubmit={(event)=>{event.preventDefault();void calculate();}}>
       <details><summary>Configurar pesos da compatibilidade</summary><fieldset disabled={busy}><legend>Pesos (soma obrigatória: 100%)</legend>
         {(Object.keys(weights) as Criterion[]).map((key)=><label className={styles.weight} key={key}>{criteriaLabels[key]}<input type="number" min={0} max={100} step={1} value={weights[key]} onChange={(event)=>{setWeights((current)=>({...current,[key]:Number(event.target.value)}));invalidate();}}/></label>)}

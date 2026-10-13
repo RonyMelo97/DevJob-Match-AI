@@ -1,5 +1,13 @@
 # Histórico de entregas
 
+## Após 1.0.0 — descoberta de vagas no Brasil
+
+- Buscas externas para LinkedIn, Indeed, Gupy, InfoJobs, Vagas.com e Catho, sem apresentar atalhos como coleta automática.
+- Pesquisa pontual de anúncios com datas/disponibilidade não confirmadas sinalizadas.
+- Comparação privada da descrição colada com o perfil revisado, pelo motor existente.
+- Relevância inclui WordPress e programador web, sem aceitar PHP backend genérico.
+
+
 ## Após 1.0.0 — busca aberta
 
 - Opção para exibir anúncios reais fora dos critérios, com data, senioridade e motivos de exclusão preservados.

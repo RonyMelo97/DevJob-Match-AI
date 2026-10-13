@@ -15,12 +15,12 @@ const technologies:Technology[] = [
 type Section = Criterion|'unknown';
 type Clause = {text:string;section:Section};
 function clauses(description:string):Clause[] {
-  const tokens = description.split(/(nice to have|preferred qualifications|desejaveis|desejáveis|diferenciais|requisitos|requirements|must have|responsabilidades|responsibilities|qualifications|atividades)\s*:?/i);
+  const tokens = description.split(/(nice to have|preferred qualifications|desejaveis|desejáveis|diferenciais|requisitos(?:\s+obrigat[oó]rios)?|requirements|must have|responsabilidades|responsibilities|qualifications|atividades)\s*:?/i);
   let section:Section='unknown';const result:Clause[]=[];
   for(const token of tokens) {
     const lower=normalized(token).trim();
     if(/^(nice to have|preferred qualifications|desejaveis|diferenciais)$/.test(lower)){section='desired';continue;}
-    if(/^(requisitos|requirements|must have|qualifications)$/.test(lower)){section='required';continue;}
+    if(/^(requisitos(?:\s+obrigatorios)?|requirements|must have|qualifications)$/.test(lower)){section='required';continue;}
     if(/^(responsabilidades|responsibilities|atividades)$/.test(lower)){section='responsibilities';continue;}
     // Avoid splitting dotted technology names. Flattened HTML uses headings and sentences.
     for(const text of token.split(/\n|;|[.!?](?=\s|$)/).map((value)=>value.trim()).filter(Boolean))result.push({text,section});

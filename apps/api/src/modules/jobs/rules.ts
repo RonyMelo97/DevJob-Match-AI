@@ -6,7 +6,7 @@ export function normalized(value: string): string {
 }
 export function relevant(title: string, description: string): boolean {
   const value = normalized(title);
-  return /front[ -]?end|react|typescript|javascript|desenvolvedor web|web developer/.test(value)
+  return /front[ -]?end|react|typescript|javascript|desenvolvedor web|web developer|wordpress|programador web/.test(value)
     || (/software engineer|engenheiro de software/.test(value) && /front[ -]?end|react/.test(normalized(description)));
 }
 export function classify(job: Job, now: Date): Job {

@@ -1,6 +1,6 @@
 import { describe,it,expect } from 'vitest';
 import type { Job } from '../../../../../packages/contracts/src/index.js';
-import { classify,deduplicate } from './rules.js';
+import { classify,deduplicate,relevant } from './rules.js';
 import { collectGreenhouse,collectRemotive } from './providers.js';
 import { JobsService, type JobsCache } from './service.js';
 
@@ -13,6 +13,7 @@ function memoryCache():JobsCache {
   return {read:async()=>stored,write:async(value)=>{stored=value;}};
 }
 describe('job rules and providers',()=> {
+  it('includes web and WordPress titles without accepting unrelated PHP backend roles',()=>{expect(relevant('Programador WordPress / HTML CSS','')).toBe(true);expect(relevant('Programador Web PHP','')).toBe(true);expect(relevant('Backend PHP','REST APIs')).toBe(false);});
   it.each(['Worldwide','Brazil','Latin America'])('accepts remote eligibility %s',(candidateLocation)=>{expect(classify(job({candidateLocation}),now).eligibility).toBe('eligible');});
   it('excludes explicitly restricted remote jobs',()=>{expect(classify(job({candidateLocation:'United States'}),now).eligibility).toBe('excluded');});
   it('keeps missing remote eligibility unconfirmed',()=>{expect(classify(job({candidateLocation:null}),now).eligibility).toBe('unconfirmed');});

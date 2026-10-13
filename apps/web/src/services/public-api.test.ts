@@ -15,6 +15,7 @@ describe('public browser privacy boundary', () => {
         expect((await api('/api/profile', { method: 'PUT', body: JSON.stringify({ profile, reviewed: true }) })).ok).toBe(true);
         const result = await (await api('/api/matches', { method: 'POST', body: '{}' })).json();
         expect(result.results[0].analysis.score).toBeGreaterThan(0);
+        expect(result.results[0].analysis.criteria.find((criterion:{key:string})=>criterion.key==='required').items).toHaveLength(1);
         expect(load.mock.calls).toEqual([[]]);
         expect(extract).not.toHaveBeenCalled();
         expect((await api('/api/ai/analyze', { method: 'POST', body: '{}' })).status).toBe(503);
