@@ -6,8 +6,9 @@ export function createPublicApi(loadJobs: () => Promise<unknown>, extract: (file
     const json = (body: unknown, status = 200): Response => Response.json(body, { status });
     async function jobs() {
         const data = jobsResponseSchema.parse(await loadJobs());
-        const all = [...data.jobs, ...data.unconfirmedDates].map(job => classify(job, new Date())).filter(job => job.recency !== 'excluded' && job.eligibility !== 'excluded' && job.seniority !== 'senior');
-        return { ...data, discarded: data.discarded + data.jobs.length + data.unconfirmedDates.length - all.length, jobs: all.filter(job => job.recency === 'recent'), unconfirmedDates: all.filter(job => job.recency === 'unknown') };
+        const classified = [...data.jobs, ...data.unconfirmedDates, ...data.excludedJobs].map(job => classify(job, new Date()));
+        const all=classified.filter(job => job.recency !== 'excluded' && job.eligibility !== 'excluded' && job.seniority !== 'senior');
+        return { ...data, excludedJobs:classified.filter(job=>job.recency==='excluded'||job.eligibility==='excluded'||job.seniority==='senior'), discarded: data.discarded + data.jobs.length + data.unconfirmedDates.length - all.length, jobs: all.filter(job => job.recency === 'recent'), unconfirmedDates: all.filter(job => job.recency === 'unknown') };
     }
     return async (path: string, init: RequestInit = {}): Promise<Response> => {
         if (init.signal?.aborted)

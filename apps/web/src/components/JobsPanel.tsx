@@ -36,6 +36,7 @@ function JobCard({job,analysis}:{job:Job;analysis?:MatchAnalysis}):React.JSX.Ele
   </article>;
 }
 export function JobsPanel({profileRevision}:{profileRevision:number}):React.JSX.Element {
+  const [broadSearch,setBroadSearch]=useState<boolean>(false);
   const [data,setData] = useState<JobsResponse|null>(null);
   const [busy,setBusy] = useState<boolean>(true);
   const [operation,setOperation]=useState<string>('Carregando vagas salvas…');
@@ -75,7 +76,7 @@ export function JobsPanel({profileRevision}:{profileRevision:number}):React.JSX.
       const body:unknown=await response.json();
       if(!response.ok)throw new Error(response.status===409?'Salve um perfil revisado antes de calcular compatibilidade.':'Não foi possível calcular a compatibilidade.');
       const result=matchesResponseSchema.parse(body);
-      if(generation===matchGeneration.current){setMatches(result);setData({jobs:result.results.map((entry)=>entry.job),unconfirmedDates:result.unconfirmedDates.map((entry)=>entry.job),sources:result.sources,collectedAt:result.collectedAt,nextRefreshAt:result.nextRefreshAt,discarded:result.discarded,duplicates:result.duplicates});setFilters((current)=>({...current,sort:'score'}));setRecentPage(1);setUnknownPage(1);}
+      if(generation===matchGeneration.current){setMatches(result);setData({excludedJobs:data?.excludedJobs??[],jobs:result.results.map((entry)=>entry.job),unconfirmedDates:result.unconfirmedDates.map((entry)=>entry.job),sources:result.sources,collectedAt:result.collectedAt,nextRefreshAt:result.nextRefreshAt,discarded:result.discarded,duplicates:result.duplicates});setFilters((current)=>({...current,sort:'score'}));setRecentPage(1);setUnknownPage(1);}
     }catch(cause:unknown){if(generation===matchGeneration.current)setError(cause instanceof Error?cause.message:'Falha no cálculo.');}
     finally{setBusy(false);}
   }
@@ -91,6 +92,7 @@ export function JobsPanel({profileRevision}:{profileRevision:number}):React.JSX.
     <div className={styles.metrics} aria-label="Resumo da lista carregada"><div><strong>{recent.length}</strong><span>Recentes confirmadas</span></div><div><strong>{uncertain.length}</strong><span>Datas incertas</span></div><div><strong>{[...recent,...uncertain].filter((result)=>result.job.eligibility==='unconfirmed').length}</strong><span>Elegibilidade pendente</span></div><div><strong>{[...recent,...uncertain].filter((result)=>result.analysis?.score!==null&&result.analysis!==null).length}</strong><span>Com score calculável</span></div></div>
     <button disabled={busy} onClick={()=>void refresh()}>{PUBLIC_MODE?'Carregar última publicação':'Consultar fontes'}</button>
     {!PUBLIC_MODE&&<button disabled={busy} onClick={()=>void reloadCache()}>Recarregar lista do cache</button>}
+    <label><input type="checkbox" checked={broadSearch} onChange={event=>setBroadSearch(event.target.checked)}/> Busca aberta para teste: incluir vagas fora dos critérios</label>
     <AutomationPanel/>
     <form onSubmit={(event)=>{event.preventDefault();void calculate();}}>
       <details><summary>Configurar pesos da compatibilidade</summary><fieldset disabled={busy}><legend>Pesos (soma obrigatória: 100%)</legend>
@@ -107,6 +109,7 @@ export function JobsPanel({profileRevision}:{profileRevision:number}):React.JSX.
       <p>Última coleta bem-sucedida: {data.collectedAt?new Date(data.collectedAt).toLocaleString('pt-BR'):'ainda não realizada'}.</p>
       {data.nextRefreshAt&&<p>{PUBLIC_MODE?'Próxima janela de coleta pública a partir de':'Nova consulta externa disponível a partir de'} {new Date(data.nextRefreshAt).toLocaleString('pt-BR')}. {PUBLIC_MODE?'O agendamento pode atrasar; o botão lê a última publicação.':'Antes disso, o botão utiliza o cache.'}</p>}
       <ul>{data.sources.map((source)=><li key={source.name}><strong>{source.name} ({source.status==='ok'?'consultada':source.status==='error'?'falha':'não consultada'}):</strong> {source.message}</li>)}</ul>
+      {broadSearch&&<section aria-label="Vagas fora dos critérios"><h3>Busca aberta — {data.excludedJobs.length} vagas adicionais</h3><p>Dados reais da coleta, incluindo anúncios antigos, sêniores e localidades fora das regras. Não representam vagas recentes ou elegíveis para seu perfil. Este filtro apenas lê o cache e não antecipa consultas.</p>{data.excludedJobs.length===0&&<p>Nenhum anúncio adicional no cache.</p>}<div className={styles.list}>{data.excludedJobs.map(job=><div key={job.id}><p className={styles.warning}>Fora dos critérios: {job.recency==='excluded'?'publicação fora dos últimos sete dias ou futura. ':''}{job.seniority==='senior'?'senioridade sênior. ':''}{job.eligibility==='excluded'?'localização ou elegibilidade excluída.':''}</p><JobCard job={job}/></div>)}</div></section>}
       <JobFilters filters={filters} onChange={changeFilters} hasAnalysis={matches!==null}/>
       <h3>Publicadas nos últimos sete dias</h3>
       {visibleRecent.length===0&&<p>{recent.length?'Nenhuma vaga corresponde aos filtros. Limpe ou ajuste os filtros.':'Nenhuma vaga recente confirmada nas fontes carregadas. Isso não significa ausência de oportunidades em outras fontes.'}</p>}

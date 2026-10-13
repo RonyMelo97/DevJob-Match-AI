@@ -12,6 +12,7 @@ export const jobSchema = z.object({
 export type Job = z.infer<typeof jobSchema>;
 export const jobsResponseSchema = z.object({
   jobs: z.array(jobSchema), unconfirmedDates: z.array(jobSchema),
+  excludedJobs: z.array(jobSchema).default([]),
   collectedAt: z.iso.datetime().nullable(), nextRefreshAt: z.iso.datetime().nullable(),
   sources: z.array(z.object({ name: z.string(), status: z.enum(['ok', 'error', 'disabled']), message: z.string() })),
   discarded: z.number().int(), duplicates: z.number().int(),

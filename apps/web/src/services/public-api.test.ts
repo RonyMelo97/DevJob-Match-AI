@@ -27,6 +27,8 @@ describe('public browser privacy boundary', () => {
         const api = createPublicApi(async () => ({ ...snapshot, jobs: [{ ...job, publishedAt: '2000-01-01T00:00:00Z' }], unconfirmedDates: [{ ...job, id: 'unknown', publishedAt: null }] }), vi.fn());
         const data = await (await api('/api/jobs')).json();
         expect(data.jobs).toEqual([]);
+        expect(data.excludedJobs).toHaveLength(1);
+        expect(data.excludedJobs[0].recency).toBe('excluded');
         expect(data.unconfirmedDates).toHaveLength(1);
     });
     it('rejects aborted operations without reading any public data', async () => {

@@ -1,5 +1,11 @@
 # Histórico de entregas
 
+## Após 1.0.0 — busca aberta
+
+- Opção para exibir anúncios reais fora dos critérios, com data, senioridade e motivos de exclusão preservados.
+- API e exportação pública incluem anúncios descartados para diagnóstico, sem antecipar coleta.
+
+
 ## 1.0.0 - 2026-10-13
 
 - MVP no GitHub Pages, com publicação e coleta agendada pelo Actions.

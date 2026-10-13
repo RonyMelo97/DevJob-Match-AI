@@ -43,6 +43,10 @@ O timer roda no processo Node.js e depende de computador/API ativos. Ao fechar o
 
 Agendamento nunca chama IA, nunca envia currículo e não faz candidaturas. Falhas de fonte respeitam cooldown; falhas de armazenamento são sinalizadas e verificadas depois de um minuto, sem consultar a fonte antes de persistir a janela.
 
+## Busca aberta para testar a coleta
+
+Marque **Busca aberta para teste: incluir vagas fora dos critérios** em Oportunidades. Uma seção adicional mostra anúncios reais que foram descartados por data, senioridade ou localização, com motivo explícito e link original. Não altera o ranking padrão, não comprova elegibilidade e não faz nova consulta aos fornecedores. Funciona com o cache local e com a fotografia pública publicada pelo Actions.
+
 ## Dashboard e filtros
 
 Atalhos levam às oportunidades, perfil e informações do projeto. Indicadores mostram vagas recentes confirmadas, datas incertas, elegibilidade pendente e scores calculáveis na lista carregada, antes dos filtros da interface.
