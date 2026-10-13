@@ -2,6 +2,16 @@
 
 Rastreador de vagas Front-end com compatibilidade explicável. Versão atual: **1.0.0**, MVP com busca periódica, dashboard, currículo privado, compatibilidade explicável e publicação no GitHub Pages.
 
+## LinkedIn na tabela — importação manual
+
+Abra **Adicionar vaga do LinkedIn à tabela** e informe link /jobs/view/, cargo, empresa e a descrição completa. Modalidade, senioridade, local e data devem ser copiados da publicação; dados ausentes permanecem desconhecidos. Após revisão, a vaga entra na tabela e recebe análise automática com o perfil salvo. Mesma publicação atualiza o registro existente. Até 100 importações.
+
+No modo local, registros ficam em private/jobs/imported.json, fora do Git. GET /jobs/imported e POST /jobs/import não consultam o LinkedIn; a disponibilidade é revisada pelo usuário. No modo público, ficam apenas na memória da sessão; CSV permite guardar as linhas. Não solicitamos login, cookies ou credenciais LinkedIn e não enviamos o currículo a essa plataforma.
+
+Isto **não é busca automática no LinkedIn**. A documentação de Talent exige aprovação e a Job Posting API destina-se a publicar/gerenciar anúncios, não a buscar todas as vagas para candidatos. Referências: [acesso às APIs](https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access), [Job Posting](https://learn.microsoft.com/en-us/linkedin/talent/job-postings/api/overview) e [atividade automatizada](https://www.linkedin.com/help/linkedin/answer/a1341543). Uma futura coleta dependerá de acesso e autorização específicos, não de um robô ou endpoint não documentado.
+
+A tabela e o CSV mostram Fit inconclusivo se o score não é calculável ou a cobertura está abaixo de 50%. Esse limite é uma regra de apresentação conservadora, não um limiar estatístico calibrado. Percentuais só aparecem com evidência mais ampla; requisitos e lacunas continuam disponíveis em Entender fit. Não fazemos candidaturas automáticas.
+
 ## Vagas verificadas e fit automático
 
 A tabela usa somente registros com descrição completa. Foi removida a lista estática de anúncios encontrada no índice de pesquisa, que não garantia links válidos, disponibilidade ou fit. Ao carregar o perfil revisado, o fit é calculado automaticamente; não é preciso copiar descrições da Gupy.

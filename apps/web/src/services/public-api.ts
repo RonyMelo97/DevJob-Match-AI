@@ -1,7 +1,8 @@
-import { jobsResponseSchema, saveProfileSchema, matchRequestSchema, type SavedProfile, type ResumeDraft } from '@devjob/contracts';
+import { linkedinImportSchema,importedLinkedinJob,jobsResponseSchema, saveProfileSchema, matchRequestSchema, type SavedProfile, type ResumeDraft } from '@devjob/contracts';
 import { analyzeMatch } from '../../../api/src/modules/matching/engine';
 import { classify } from '../../../api/src/modules/jobs/rules';
 export function createPublicApi(loadJobs: () => Promise<unknown>, extract: (file: File) => Promise<ResumeDraft>) {
+    let imported:ReturnType<typeof importedLinkedinJob>[]=[];
     let saved: SavedProfile | null = null;
     const json = (body: unknown, status = 200): Response => Response.json(body, { status });
     async function jobs() {
@@ -15,6 +16,8 @@ export function createPublicApi(loadJobs: () => Promise<unknown>, extract: (file
             throw new DOMException('Aborted', 'AbortError');
         try {
             const method = init.method ?? 'GET';
+            if(path==='/api/jobs/imported')return json({jobs:imported});
+            if(path==='/api/jobs/import'&&method==='POST'){const job=importedLinkedinJob(linkedinImportSchema.parse(JSON.parse(String(init.body)) as unknown));imported=[job,...imported.filter(item=>item.id!==job.id)].slice(0,100);return json({job});}
             if (path === '/api/health')
                 return json({ status: 'ok', service: 'devjob-api', version: '1.0.0' });
             if (path === '/api/profile') {

@@ -10,6 +10,7 @@ import { FileProfileRepository, type ProfileRepository } from './modules/resumes
 import { ResumeError, type ExtractedPdf } from './modules/resumes/pdf.js';
 import { GupySources } from './modules/jobs/gupy.js';
 import { FileJobsCache, JobsService } from './modules/jobs/service.js';
+import {FileImportedJobs,importRoutes} from './modules/jobs/imports.js';
 import { jobRoutes } from './modules/jobs/routes.js';
 import { matchingRoutes } from './modules/matching/routes.js';
 import { AiError,AiService,FileAiStore } from './modules/ai/service.js';
@@ -55,6 +56,7 @@ export function buildApp(config: AppConfig, logger = false, dependencies: AppDep
   app.addHook('onClose',async()=>scheduler.stop());
   app.register(automationRoutes,{scheduler});
   app.register(jobRoutes,{service:jobsService});
+  app.register(importRoutes,{repository:new FileImportedJobs(jobsPath.replace(/cache\.json$/,'imported.json'))});
   app.register(matchingRoutes,{repository,jobs:jobsService});
   const aiStorePath=fileURLToPath(new URL('../ai/ledger.json',new URL(sourceRoot,import.meta.url)));
   app.register(aiRoutes,{jobs:jobsService,ai:dependencies.aiService??new AiService(config,new FileAiStore(aiStorePath),new OpenAiProvider(config.OPENAI_API_KEY))});

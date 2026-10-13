@@ -1,5 +1,13 @@
 # Histórico de entregas
 
+## Após 1.0.0 — importação LinkedIn
+
+- Entrada manual de publicação completa do LinkedIn na tabela, com revisão e deduplicação por ID.
+- Persistência privada no modo local; memória por sessão no público, sem chamadas LinkedIn ou envio de currículo.
+- Fit automático; resultados de cobertura baixa aparecem como inconclusivos na tabela e no CSV.
+- Coleta automática LinkedIn permanece não implementada por falta de integração autorizada.
+
+
 ## Após 1.0.0 — período e datas
 
 - Período padrão de 14 dias; coluna Local / publicação com modalidade e data DD/MM/AAAA.

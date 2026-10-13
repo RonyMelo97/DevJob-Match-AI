@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { jobsResponseSchema, savedProfileSchema, type Job, type MatchAnalysis } from '@devjob/contracts';
+import { jobsResponseSchema, savedProfileSchema, jobSchema, type Job, type MatchAnalysis } from '@devjob/contracts';
 import { apiFetch, PUBLIC_MODE } from '../services/api';
 import { analyzeMatch } from '../../../api/src/modules/matching/engine';
+import {LinkedinImport} from './LinkedinImport';
+import {classify} from '../../../api/src/modules/jobs/rules';
 import { PortalSearchPanel } from './PortalSearchPanel';
 import {withinTwoWeeks,publicationLabel,locationLabel} from '../features/jobs/presentation';
 import { toCsv } from '../features/jobs/csv';
@@ -19,6 +21,7 @@ type Row = {
 export function JobsTable({ profileRevision }: {
     profileRevision: number;
 }): React.JSX.Element {
+    const [importedJobs,setImportedJobs]=useState<Job[]>([]);
     const [jobs, setJobs] = useState<Job[]>([]);
     const [analyses, setAnalyses] = useState<Record<string, MatchAnalysis>>({});
     const [busy, setBusy] = useState(false);
@@ -31,6 +34,7 @@ export function JobsTable({ profileRevision }: {
         throw new Error('Não foi possível carregar vagas.'); const data = jobsResponseSchema.parse(await response.json()); if (!controller.signal.aborted)
         setJobs([...data.jobs, ...data.unconfirmedDates, ...data.excludedJobs]); }).catch(cause => { if (!controller.signal.aborted)
         setError(cause instanceof Error ? cause.message : 'Falha ao carregar.'); }); return () => controller.abort(); }, []);
+    useEffect(()=>{const controller=new AbortController();apiFetch('/api/jobs/imported',{signal:controller.signal}).then(async response=>{if(!response.ok)return;const body=await response.json() as {jobs:unknown[]};const parsed=body.jobs.map(value=>jobSchema.parse(value));if(!controller.signal.aborted)setImportedJobs(parsed);}).catch(()=>{});return()=>controller.abort();},[]);
     async function refresh(): Promise<void> { setBusy(true); setError(''); try {
         const response = await apiFetch('/api/jobs/refresh', { method: 'POST' });
         if (!response.ok)
@@ -55,7 +59,7 @@ export function JobsTable({ profileRevision }: {
         const saved = savedProfileSchema.safeParse(body.saved);
         if (!saved.success)
             throw new Error('Abra Meu currículo abaixo e salve seu perfil revisado primeiro.');
-        setAnalyses(Object.fromEntries(jobs.map(job => [job.id, analyzeMatch(job, saved.data.profile)])));
+        setAnalyses(Object.fromEntries([...jobs,...importedJobs].map(job => [job.id, analyzeMatch(job, saved.data.profile)])));
     }
     catch (cause: unknown) {
         setError(cause instanceof Error ? cause.message : 'Falha ao calcular.');
@@ -67,15 +71,16 @@ export function JobsTable({ profileRevision }: {
         return; const body = await response.json() as {
         saved: unknown;
     }; const saved = savedProfileSchema.safeParse(body.saved); if (saved.success && !controller.signal.aborted)
-        setAnalyses(Object.fromEntries(jobs.map(job => [job.id, analyzeMatch(job, saved.data.profile)]))); }).catch(() => { }); return () => controller.abort(); }, [jobs, profileRevision]);
-    const automatic: Row[] = jobs.filter(job => !(/\b(mobile|ios|android|react native)\b/i.test(job.title)) && (!reactOnly || /\breact(?:\.js|js)?\b(?!\s+native)/i.test(job.title + ' ' + job.description)) && (broad || (job.eligibility !== 'excluded' && job.seniority !== 'senior' && withinTwoWeeks(job)))).map(job => ({ id: job.id, title: job.title, company: job.company, location: locationLabel(job), date: publicationLabel(job), url: job.url, note: [!withinTwoWeeks(job) ? 'Fora das últimas duas semanas ou data futura' : '', job.checkedAt ? `Publicada na Gupy, verificada em ${new Date(job.checkedAt).toLocaleString('pt-BR')}` : 'Disponibilidade atual não verificada', job.seniority === 'senior' ? 'Sênior' : '', job.eligibility === 'excluded' ? 'Localização incompatível' : '', ...job.reasons].filter(Boolean).join(' · '), analysis: analyses[job.id] ?? null }));
+        setAnalyses(Object.fromEntries(jobs.map(job => [job.id, analyzeMatch(job, saved.data.profile)]))); }).catch(() => { }); return () => controller.abort(); }, [jobs, importedJobs, profileRevision]);
+    const automatic: Row[] = [...jobs,...importedJobs.map(job=>classify(job,new Date()))].filter(job => !(/\b(mobile|ios|android|react native)\b/i.test(job.title)) && (!reactOnly || /\breact(?:\.js|js)?\b(?!\s+native)/i.test(job.title + ' ' + job.description)) && (broad || (job.eligibility !== 'excluded' && job.seniority !== 'senior' && withinTwoWeeks(job)))).map(job => ({ id: job.id, title: job.title, company: job.company+(job.source==='linkedin'?' · LinkedIn (importada)':''), location: locationLabel(job), date: publicationLabel(job), url: job.url, note: [!withinTwoWeeks(job) ? 'Fora das últimas duas semanas ou data futura' : '', job.checkedAt ? `Publicada na Gupy, verificada em ${new Date(job.checkedAt).toLocaleString('pt-BR')}` : 'Disponibilidade atual não verificada', job.seniority === 'senior' ? 'Sênior' : '', job.eligibility === 'excluded' ? 'Localização incompatível' : '', ...job.reasons].filter(Boolean).join(' · '), analysis: analyses[job.id] ?? null }));
     const rows = automatic.filter(row => `${row.title} ${row.company} ${row.location} ${row.note}`.toLocaleLowerCase('pt-BR').includes(query.toLocaleLowerCase('pt-BR'))).sort((a, b) => (b.analysis?.score ?? -1) - (a.analysis?.score ?? -1));
-    function exportCsv(): void { const contents = toCsv([['Vaga', 'Empresa / fonte', 'Local', 'Data de publicação', 'Fit (%)', 'Cobertura (%)', 'Observações', 'Link para candidatura'], ...rows.map(row => [row.title, row.company, row.location, row.date, row.analysis?.score === null || !row.analysis ? '' : String(row.analysis.score), row.analysis ? String(row.analysis.coverage) : '', row.note, row.url])]); const url = URL.createObjectURL(new Blob([contents], { type: 'text/csv;charset=utf-8' })); const link = document.createElement('a'); link.href = url; link.download = 'vagas-devjob.csv'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
+    function exportCsv(): void { const contents = toCsv([['Vaga', 'Empresa / fonte', 'Local', 'Data de publicação', 'Fit (%)', 'Situação do fit', 'Cobertura (%)', 'Observações', 'Link para candidatura'], ...rows.map(row => [row.title, row.company, row.location, row.date, row.analysis?.score === null || !row.analysis || row.analysis.coverage<50 ? '' : String(row.analysis.score), !row.analysis?'Perfil não carregado':row.analysis.score===null||row.analysis.coverage<50?'Inconclusivo':'Calculado', row.analysis ? String(row.analysis.coverage) : '', row.note, row.url])]); const url = URL.createObjectURL(new Blob([contents], { type: 'text/csv;charset=utf-8' })); const link = document.createElement('a'); link.href = url; link.download = 'vagas-devjob.csv'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
     return <section id="vagas" className={styles.panel}><h1>Minhas vagas</h1><p>Veja as oportunidades, confira o fit e abra a candidatura.</p>
     <button disabled={busy} onClick={() => void refresh()}>{PUBLIC_MODE ? 'Atualizar lista' : 'Buscar / atualizar'}</button><button disabled={busy} onClick={() => void fit()}>Calcular fit com meu currículo</button><button disabled={!rows.length} onClick={exportCsv}>Baixar planilha CSV</button>
+    <LinkedinImport onImport={job=>setImportedJobs(current=>[job,...current.filter(item=>item.id!==job.id)])}/>
     <p><label>Pesquisar na tabela <input type="search" value={query} onChange={event => setQuery(event.target.value)}/></label> <label><input type="checkbox" checked={broad} onChange={event => setBroad(event.target.checked)}/> Incluir anúncios fora dos critérios</label> <label><input type="checkbox" checked={reactOnly} onChange={event => setReactOnly(event.target.checked)}/> Priorizar React</label></p>
     <p role="status">{busy ? 'Carregando…' : `${rows.length} vagas com descrição completa. Busca padrão: React, últimos 14 dias, sem sênior ou localização incompatível.`}</p>{error && <p role="alert">{error}</p>}
-    <div style={{ overflowX: 'auto' }}><table className={styles.table}><caption>Oportunidades para conferir e se candidatar</caption><thead><tr><th>Vaga / empresa</th><th>Local / publicação</th><th>Fit</th><th>Candidatura</th></tr></thead><tbody>{rows.map(row => <tr key={row.id}><td><strong>{row.title}</strong><br />{row.company}<details><summary>Observações</summary><p>{row.note}</p></details></td><td>{row.location}<br /><small>{row.date==='Data não confirmada'?row.date:`Publicado em ${row.date}`}</small></td><td>{row.analysis ? row.analysis.score === null ? 'Sem evidência suficiente' : `${row.analysis.score}%` : 'Salve seu currículo para calcular'}{row.analysis && <>{row.analysis.coverage < 50 && <small style={{ display: 'block' }}>Fit preliminar: faltam evidências</small>}<small style={{ display: 'block' }}>Cobertura: {row.analysis.coverage}%</small><details><summary>Entender fit</summary><ul>{row.analysis.criteria.flatMap(criterion => criterion.items).filter(item => item.jobEvidence !== null).map((item, index) => <li key={index}>{item.requirement}: {item.status === 'met' ? 'atendido' : item.status === 'partial' ? 'parcial' : item.status === 'not_met' ? 'não atendido' : 'não comprovado'}<p>{item.explanation}</p></li>)}</ul></details></>}</td><td><a href={row.url} target="_blank" rel="noreferrer">Abrir vaga ↗</a></td></tr>)}</tbody></table></div>
+    <div style={{ overflowX: 'auto' }}><table className={styles.table}><caption>Oportunidades para conferir e se candidatar</caption><thead><tr><th>Vaga / empresa</th><th>Local / publicação</th><th>Fit</th><th>Candidatura</th></tr></thead><tbody>{rows.map(row => <tr key={row.id}><td><strong>{row.title}</strong><br />{row.company}<details><summary>Observações</summary><p>{row.note}</p></details></td><td>{row.location}<br /><small>{row.date==='Data não confirmada'?row.date:`Publicado em ${row.date}`}</small></td><td>{row.analysis ? row.analysis.score === null || row.analysis.coverage < 50 ? 'Fit inconclusivo' : `${row.analysis.score}%` : 'Salve seu currículo para calcular'}{row.analysis && <>{row.analysis.coverage < 50 && <small style={{ display: 'block' }}>Cobertura baixa: revise os requisitos</small>}<small style={{ display: 'block' }}>Cobertura: {row.analysis.coverage}%</small><details><summary>Entender fit</summary><ul>{row.analysis.criteria.flatMap(criterion => criterion.items).filter(item => item.jobEvidence !== null).map((item, index) => <li key={index}>{item.requirement}: {item.status === 'met' ? 'atendido' : item.status === 'partial' ? 'parcial' : item.status === 'not_met' ? 'não atendido' : 'não comprovado'}<p>{item.explanation}</p></li>)}</ul></details></>}</td><td><a href={row.url} target="_blank" rel="noreferrer">Abrir vaga ↗</a></td></tr>)}</tbody></table></div>
     <p><small>Fit é uma estimativa por evidências, não chance de contratação. Data desconhecida não significa vaga recente. A verificação de disponibilidade Gupy tem cache de seis horas. Atualizar respeita o cache das fontes.</small></p>
     <details><summary>Buscar em outros sites / comparar uma descrição</summary><PortalSearchPanel /></details>
   </section>;

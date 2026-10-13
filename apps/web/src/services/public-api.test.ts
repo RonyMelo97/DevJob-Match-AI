@@ -41,3 +41,5 @@ describe('public browser privacy boundary', () => {
         expect(load).not.toHaveBeenCalled();
     });
 });
+
+describe('public manual imports',()=>{it('stores LinkedIn jobs only in this session without invoking snapshot or extraction loaders',async()=>{const load=vi.fn();const extract=vi.fn();const api=createPublicApi(load,extract);const input={url:'https://www.linkedin.com/jobs/view/123456/',title:'Synthetic React vacancy',company:'Test fixture',description:'Requisitos obrigatórios: React e TypeScript. Interfaces responsivas.',candidateLocation:'Brasil',modality:'remote',seniority:'junior',publicationDate:'',reviewed:true};expect((await api('/api/jobs/import',{method:'POST',body:JSON.stringify(input)})).ok).toBe(true);expect((await (await api('/api/jobs/imported')).json()).jobs).toHaveLength(1);expect(load).not.toHaveBeenCalled();expect(extract).not.toHaveBeenCalled();expect((await (await createPublicApi(load,extract)('/api/jobs/imported')).json()).jobs).toEqual([]);});});
