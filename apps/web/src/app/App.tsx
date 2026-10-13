@@ -33,7 +33,7 @@ export function App(): React.JSX.Element {
     error: 'Não foi possível conectar à API. Verifique se o backend está em execução.',
   };
   return <main className={styles.container}>
-    <header className={styles.header}><a className={styles.brand} href="/">DevJob<span> Match AI</span></a><span className={styles.version}>v0.4.0</span></header>
+    <header className={styles.header}><a className={styles.brand} href="/">DevJob<span> Match AI</span></a><span className={styles.version}>v0.5.0</span></header>
     <section className={styles.hero}>
       <p className={styles.eyebrow}>SEU PRÓXIMO PASSO, COM MAIS CLAREZA</p>
       <h1>Encontre oportunidades.<br /><span>Entenda sua compatibilidade.</span></h1>

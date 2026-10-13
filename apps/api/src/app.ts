@@ -11,8 +11,11 @@ import { ResumeError, type ExtractedPdf } from './modules/resumes/pdf.js';
 import { FileJobsCache, JobsService } from './modules/jobs/service.js';
 import { jobRoutes } from './modules/jobs/routes.js';
 import { matchingRoutes } from './modules/matching/routes.js';
+import { AiError,AiService,FileAiStore } from './modules/ai/service.js';
+import { OpenAiProvider } from './modules/ai/provider.js';
+import { aiRoutes } from './modules/ai/routes.js';
 
-export type AppDependencies = { repository?: ProfileRepository; extract?: (data: Buffer) => Promise<ExtractedPdf>; jobsService?: JobsService };
+export type AppDependencies = { repository?: ProfileRepository; extract?: (data: Buffer) => Promise<ExtractedPdf>; jobsService?: JobsService; aiService?:AiService };
 
 export function buildApp(config: AppConfig, logger = false, dependencies: AppDependencies = {}): FastifyInstance {
   const app = Fastify({ logger, bodyLimit: 200_000, logController: new LogController({ disableRequestLogging: true }) });
@@ -31,6 +34,7 @@ export function buildApp(config: AppConfig, logger = false, dependencies: AppDep
   });
   app.setErrorHandler((error, _request, reply) => {
     if (error instanceof ResumeError) return reply.code(error.statusCode).send({ message: error.message });
+    if (error instanceof AiError) return reply.code(error.statusCode).send({ message: error.message });
     const code = error instanceof Error && 'statusCode' in error && typeof error.statusCode === 'number' ? error.statusCode : 500;
     return reply.code(code >= 400 && code < 500 ? code : 500).send({ message: code === 413 ? 'O PDF deve ter até 5 MB; envie apenas um arquivo.' : code >= 400 && code < 500 ? 'Requisição inválida. Envie um único PDF de até 5 MB.' : 'Não foi possível concluir a operação. Tente novamente.' });
   });
@@ -43,5 +47,7 @@ export function buildApp(config: AppConfig, logger = false, dependencies: AppDep
   const jobsService=dependencies.jobsService??new JobsService(new FileJobsCache(jobsPath),config.GREENHOUSE_BOARDS);
   app.register(jobRoutes,{service:jobsService});
   app.register(matchingRoutes,{repository,jobs:jobsService});
+  const aiStorePath=fileURLToPath(new URL('../ai/ledger.json',new URL(sourceRoot,import.meta.url)));
+  app.register(aiRoutes,{jobs:jobsService,ai:dependencies.aiService??new AiService(config,new FileAiStore(aiStorePath),new OpenAiProvider(config.OPENAI_API_KEY))});
   return app;
 }

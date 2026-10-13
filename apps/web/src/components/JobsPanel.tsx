@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { DEFAULT_WEIGHTS, jobsResponseSchema, matchesResponseSchema, weightsSchema, type Criterion, type Job, type JobsResponse, type MatchAnalysis, type MatchesResponse, type MatchWeights } from '@devjob/contracts';
 import styles from './JobsPanel.module.css';
+import { AiJobAnalysis } from './AiJobAnalysis';
 
 const mode:Record<Job['modality'],string> = {remote:'Remoto',hybrid:'Híbrido',onsite:'Presencial',unknown:'Modalidade não informada'};
 const levels:Record<Job['seniority'],string> = {junior:'Júnior',mid:'Pleno',senior:'Sênior',unknown:'Senioridade não informada'};
@@ -27,6 +28,7 @@ function JobCard({job,analysis}:{job:Job;analysis?:MatchAnalysis}):React.JSX.Ele
       </details>
     </div>}
     <details><summary>Ver descrição e observações</summary><p>{job.description || 'Descrição não informada.'}</p><ul>{job.reasons.map((reason)=><li key={reason}>{reason}</li>)}</ul></details>
+    <AiJobAnalysis jobId={job.id}/>
   </article>;
 }
 export function JobsPanel({profileRevision}:{profileRevision:number}):React.JSX.Element {

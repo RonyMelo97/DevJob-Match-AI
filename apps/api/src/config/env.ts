@@ -5,6 +5,10 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(3001),
   CORS_ORIGIN: z.url().default('http://localhost:5173'),
   GREENHOUSE_BOARDS: z.string().default('').transform((value) => value.split(',').map((board) => board.trim()).filter(Boolean)).pipe(z.array(z.string().regex(/^[a-zA-Z0-9_-]{1,80}$/)).max(5)),
+  AI_ENABLED:z.enum(['true','false']).default('false').transform((value)=>value==='true'),
+  OPENAI_API_KEY:z.string().default(''),
+  AI_MAX_REQUEST_USD:z.coerce.number().positive().max(1).default(0.01),
+  AI_DAILY_BUDGET_USD:z.coerce.number().positive().max(10).default(0.10),
 });
 
 export type AppConfig = z.infer<typeof envSchema>;

@@ -1,5 +1,15 @@
 # Histórico de entregas
 
+## 0.5.0 - 2026-10-13
+
+- IA opcional e desativada por padrão; busca e score continuam independentes.
+- Adaptador OpenAI com saída estruturada e evidências literais do texto público da vaga.
+- Prévia e confirmação antes do envio, sem currículo ou perfil no payload.
+- Cache, orçamento persistente, limite por chamada e ausência de retries automáticos.
+- Testes com respostas simuladas; validação real depende de chave local.
+
+Detalhes: [entrega 0.5.0](docs/releases/v0.5.0.md).
+
 ## 0.4.0 - 2026-10-13
 
 - Motor determinístico com seis critérios, pesos configuráveis, score e cobertura.

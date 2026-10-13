@@ -1,6 +1,20 @@
 # DevJob Match AI
 
-Rastreador de vagas Front-end com compatibilidade explicável. Versão atual: **0.4.0**, currículo, fontes públicas e motor determinístico de compatibilidade.
+Rastreador de vagas Front-end com compatibilidade explicável. Versão atual: **0.5.0**, currículo, fontes públicas, compatibilidade por regras e IA opcional.
+
+## IA opcional e custos
+
+Procurar vagas e calcular compatibilidade por regras não exige chave OpenAI. IA vem desligada. A opção em cada vaga prepara uma prévia local do texto público, com custo estimado, antes de permitir confirmação de envio. Currículo, perfil, PDF e score não são enviados nem alterados pela IA.
+
+Para ativar posteriormente, configure apenas `apps/api/.env`: `AI_ENABLED=true` e `OPENAI_API_KEY` com sua chave, sem compartilhá-la no chat ou Git. Reinicie a API. Limites padrão: US$ 0,01 por chamada e US$ 0,10 por dia UTC. Modelo inicial: gpt-4.1-mini. Preço consultado em 13/10/2026: US$ 0,40 por milhão de tokens de entrada e US$ 1,60 de saída. [Modelo e preços](https://developers.openai.com/api/docs/models/gpt-4.1-mini). Preços podem mudar; revisar antes de ativar.
+
+O teto local usa reserva conservadora por bytes de entrada, margem de prompt/schema e até 1200 tokens de saída; não é extrato nem garantia de faturamento. Configure também os limites da conta no provedor. Reservas permanecem após timeout, recusa ou resposta inválida; não há retry automático. Orçamento/cache ficam em `private/ai/ledger.json`; não apagar para contornar limites. Uso com uma instância local.
+
+Emails, links e contatos numéricos são removidos do texto por regras simples; a prévia permite conferir os dados restantes. São até 12 KB de texto UTF-8. Esse filtro não é anonimização completa. Respostas devem conter JSON válido e citações literais desse texto, senão são recusadas. Categorias sugeridas podem estar erradas e exigem revisão; não são automaticamente incorporadas ao score.
+
+Chamadas usam Responses API, `store=false`, timeout de 30 segundos e resposta limitada a 512 KB. Isso não elimina todas as possíveis retenções do provedor: [controles de dados](https://developers.openai.com/api/docs/guides/your-data). Interface `AiProvider` permite substituir o adaptador; atualizar preços, consentimento e chave de cache ao trocar fornecedor/modelo. Não há agentes nem ferramentas externas no prompt.
+
+Rotas: POST `/ai/preview` com jobId; POST `/ai/analyze` com jobId, hash e confirmed=true. Apenas vagas disponíveis no cache filtrado são aceitas; não aceitamos texto arbitrário de currículo nessas rotas. Testes usam provedores simulados, sem cobrança. Não houve validação com uma chave real nesta entrega.
 
 ## Executar localmente
 

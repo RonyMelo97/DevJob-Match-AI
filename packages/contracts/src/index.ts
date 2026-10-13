@@ -1,11 +1,12 @@
 import { z } from 'zod';
 export * from './jobs.js';
 export * from './matching.js';
+export * from './ai.js';
 
 export const healthResponseSchema = z.object({
   status: z.literal('ok'),
   service: z.literal('devjob-api'),
-  version: z.literal('0.4.0'),
+  version: z.literal('0.5.0'),
 });
 
 export type HealthResponse = z.infer<typeof healthResponseSchema>;
