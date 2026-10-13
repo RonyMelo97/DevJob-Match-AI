@@ -1,5 +1,11 @@
 # Histórico de entregas
 
+## Após 1.0.0 — período e datas
+
+- Período padrão de 14 dias; coluna Local / publicação com modalidade e data DD/MM/AAAA.
+- Fuso de São Paulo para publicação com instante conhecido; datas ausentes/sem fuso sinalizadas.
+
+
 ## Após 1.0.0 — qualidade das vagas e fit
 
 - Removidos anúncios estáticos sem publicação/descrição verificada, incluindo InfoJobs e Cadastra encerrada.

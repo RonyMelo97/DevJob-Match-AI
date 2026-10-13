@@ -1,0 +1,7 @@
+import {it,expect} from 'vitest';
+import type {Job} from '@devjob/contracts';
+import {withinTwoWeeks,publicationLabel,locationLabel} from './presentation';
+const job:Job={id:'test',source:'gupy',sourceId:'test',title:'React',company:'Test',url:'https://example.org/',description:'',salary:null,candidateLocation:'Brasil',modality:'remote',seniority:'mid',publishedAt:'2026-10-13T01:00:00Z',publicationRaw:'2026-10-13T01:00:00Z',recency:'recent',eligibility:'eligible',reasons:[]};
+it('formats publication in São Paulo timezone independently of host timezone',()=>{expect(publicationLabel(job)).toBe('12/10/2026');expect(locationLabel(job)).toBe('Remoto · Brasil');});
+it('includes the fourteen-day boundary and excludes older/future dates',()=>{const now=new Date('2026-10-13T12:00:00Z');expect(withinTwoWeeks({...job,publishedAt:'2026-09-29T12:00:00Z'},now)).toBe(true);expect(withinTwoWeeks({...job,publishedAt:'2026-09-29T11:59:59Z'},now)).toBe(false);expect(withinTwoWeeks({...job,publishedAt:'2026-10-14T12:00:00Z'},now)).toBe(false);});
+it('keeps missing date unconfirmed and avoids timezone assumptions for date-only sources',()=>{expect(publicationLabel({...job,publishedAt:null,publicationRaw:null})).toBe('Data não confirmada');expect(publicationLabel({...job,publishedAt:null,publicationRaw:'2026-10-13'})).toBe('13/10/2026 (fuso não informado)');expect(withinTwoWeeks({...job,publishedAt:null,publicationRaw:'2000-01-01'})).toBe(false);});
