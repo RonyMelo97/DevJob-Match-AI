@@ -1,6 +1,20 @@
 # DevJob Match AI
 
-Rastreador de vagas Front-end com compatibilidade explicável. Versão atual: **0.6.0**, dashboard, filtros, currículo, fontes públicas, compatibilidade por regras e IA opcional.
+Rastreador de vagas Front-end com compatibilidade explicável. Versão atual: **0.7.0**, busca periódica, dashboard, filtros, currículo, compatibilidade por regras e IA opcional.
+
+## Busca periódica e histórico
+
+Com a API ligada, `JOBS_AUTO_REFRESH=true` inicia o agendador. Ele lê a próxima janela persistida e espera até a consulta permitida, sem ignorar as seis horas da Remotive. Para manter desativado após reiniciar, configure `JOBS_AUTO_REFRESH=false` em `apps/api/.env`.
+
+O painel **Atualização automática e histórico** permite pausar/retomar nesta execução do servidor; a pausa não altera o .env. Ao parar, timers são cancelados e uma coleta já iniciada pode terminar antes da resposta. O status/histórico é lido pela interface a cada minuto, somente da API local. Use **Recarregar lista do cache** para trazer novos resultados ao dashboard e invalidar scores anteriores; isso não consulta fornecedores.
+
+GET `/jobs/automation` retorna status e até 20 execuções. PUT aceita `{ "enabled": true }` ou false. `private/jobs/runs.json` guarda origem manual/agendada, início, fim, resultado e contagens. Verificações que apenas reutilizam a janela não geram registros repetitivos. Reinício marca rodadas persistidas em andamento como interrompidas, sem antecipar nova chamada.
+
+Alterações são detectadas por ID e conteúdo normalizado: entradas, mudanças, itens sem mudança e itens fora da fotografia. Não há coleta incremental suportada universalmente pelas fontes: ainda recebemos snapshots e comparamos localmente. Sair da fotografia não comprova vaga encerrada, especialmente com limites ou mudanças na configuração de quadros. Falha parcial preserva anúncios da fonte com problema e recebe registro próprio.
+
+O timer roda no processo Node.js e depende de computador/API ativos. Ao fechar o servidor ou desligar o computador, não haverá consultas; na próxima inicialização, a janela será verificada. Não é uma automação do Codex nem serviço de background do Windows. Suporta uma instância, não múltiplos servidores compartilhando arquivos. Em produção, uma fila ou scheduler externo com bloqueios compartilhados será uma alternativa a avaliar.
+
+Agendamento nunca chama IA, nunca envia currículo e não faz candidaturas. Falhas de fonte respeitam cooldown; falhas de armazenamento são sinalizadas e verificadas depois de um minuto, sem consultar a fonte antes de persistir a janela.
 
 ## Dashboard e filtros
 
@@ -80,7 +94,7 @@ Rotas: `POST /resumes/extract` (multipart, campo resume), `GET /profile`, `PUT /
 
 ## Fontes de vagas
 
-Abra o painel **Vagas das fontes públicas** e clique em **Consultar fontes**. O servidor consulta a API pública Remotive, categoria software-dev, e os quadros Greenhouse configurados. Nenhum dado do currículo é enviado. GET `/jobs` apenas lê o cache; POST `/jobs/refresh` consulta fontes somente quando a janela de seis horas permite. Não há agendamento automático ainda.
+Abra o **Dashboard de oportunidades** e clique em **Consultar fontes**. O servidor consulta a API pública Remotive, categoria software-dev, e os quadros Greenhouse configurados. Nenhum dado do currículo é enviado. GET `/jobs` apenas lê o cache; POST `/jobs/refresh` consulta fontes somente quando a janela de seis horas permite. A coleta agendada usa o mesmo serviço e respeita essa janela.
 
 Remotive é uma fonte pública sem chave para esta integração. Seus termos exigem atribuição e link original, atrasam os anúncios em 24 horas e recomendam até quatro consultas por dia: https://github.com/remotive-com/remote-jobs-api. Não há cobrança de API integrada; limites e termos do provedor continuam aplicáveis. Não usar este projeto para republicar anúncios em outros agregadores ou exigir cadastro para vê-los.
 

@@ -3,6 +3,7 @@ import { DEFAULT_WEIGHTS, jobsResponseSchema, matchesResponseSchema, weightsSche
 import styles from './JobsPanel.module.css';
 import { AiJobAnalysis } from './AiJobAnalysis';
 import { JobFilters } from './JobFilters';
+import { AutomationPanel } from './AutomationPanel';
 import { DEFAULT_FILTERS,filterJobs,paginateJobs,type JobFilters as Filters,type JobResult } from '../features/jobs/filter-jobs';
 
 const mode:Record<Job['modality'],string> = {remote:'Remoto',hybrid:'Híbrido',onsite:'Presencial',unknown:'Modalidade não informada'};
@@ -63,6 +64,7 @@ export function JobsPanel({profileRevision}:{profileRevision:number}):React.JSX.
     } catch {setError('Não foi possível consultar as fontes. Tente novamente; a janela de atualização é preservada após falhas.');}
     finally {setBusy(false);}
   }
+  async function reloadCache():Promise<void>{setBusy(true);setOperation('Carregando lista do cache…');setError('');invalidate();try{const response=await fetch('/api/jobs');if(!response.ok)throw new Error();const body:unknown=await response.json();setData(jobsResponseSchema.parse(body));}catch{setError('Não foi possível carregar a lista do cache.');}finally{setBusy(false);}}
   async function calculate():Promise<void> {
     if(!weightsSchema.safeParse(weights).success){setError('Os pesos devem ser inteiros entre 0 e 100 e somar 100.');return;}
     setBusy(true);setOperation('Calculando compatibilidade…');setError('');setMatches(null);
@@ -87,6 +89,8 @@ export function JobsPanel({profileRevision}:{profileRevision:number}):React.JSX.
     <p>Front-end, React, TypeScript e JavaScript. Prioridade para júnior e pleno; vagas sem senioridade ficam sinalizadas.</p>
     <div className={styles.metrics} aria-label="Resumo da lista carregada"><div><strong>{recent.length}</strong><span>Recentes confirmadas</span></div><div><strong>{uncertain.length}</strong><span>Datas incertas</span></div><div><strong>{[...recent,...uncertain].filter((result)=>result.job.eligibility==='unconfirmed').length}</strong><span>Elegibilidade pendente</span></div><div><strong>{[...recent,...uncertain].filter((result)=>result.analysis?.score!==null&&result.analysis!==null).length}</strong><span>Com score calculável</span></div></div>
     <button disabled={busy} onClick={()=>void refresh()}>Consultar fontes</button>
+    <button disabled={busy} onClick={()=>void reloadCache()}>Recarregar lista do cache</button>
+    <AutomationPanel/>
     <form onSubmit={(event)=>{event.preventDefault();void calculate();}}>
       <details><summary>Configurar pesos da compatibilidade</summary><fieldset disabled={busy}><legend>Pesos (soma obrigatória: 100%)</legend>
         {(Object.keys(weights) as Criterion[]).map((key)=><label className={styles.weight} key={key}>{criteriaLabels[key]}<input type="number" min={0} max={100} step={1} value={weights[key]} onChange={(event)=>{setWeights((current)=>({...current,[key]:Number(event.target.value)}));invalidate();}}/></label>)}

@@ -1,5 +1,15 @@
 # Histórico de entregas
 
+## 0.7.0 - 2026-10-13
+
+- Agendamento no backend com janela persistida de seis horas.
+- Pausa/retomada, status e histórico limitado a 20 rodadas.
+- Contagens de mudanças entre snapshots e recuperação de execuções interrompidas.
+- Concorrência compartilhada com consulta manual, parada limpa e falhas parciais.
+- Nenhuma análise automática de IA ou candidatura.
+
+Detalhes: [entrega 0.7.0](docs/releases/v0.7.0.md).
+
 ## 0.6.0 - 2026-10-13
 
 - Dashboard com indicadores e atalhos para oportunidades/perfil.

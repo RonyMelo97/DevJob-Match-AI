@@ -1,6 +1,6 @@
 {
   "name": "@devjob/web",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,7 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@devjob/contracts": "0.6.0",
+    "@devjob/contracts": "0.7.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

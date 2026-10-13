@@ -14,6 +14,9 @@ import { matchingRoutes } from './modules/matching/routes.js';
 import { AiError,AiService,FileAiStore } from './modules/ai/service.js';
 import { OpenAiProvider } from './modules/ai/provider.js';
 import { aiRoutes } from './modules/ai/routes.js';
+import { FileRunHistory } from './modules/jobs/run-history.js';
+import { JobsScheduler } from './modules/jobs/scheduler.js';
+import { automationRoutes } from './modules/jobs/automation-routes.js';
 
 export type AppDependencies = { repository?: ProfileRepository; extract?: (data: Buffer) => Promise<ExtractedPdf>; jobsService?: JobsService; aiService?:AiService };
 
@@ -44,7 +47,12 @@ export function buildApp(config: AppConfig, logger = false, dependencies: AppDep
   app.register(resumeRoutes, { repository, ...(dependencies.extract ? { extract: dependencies.extract } : {}) });
   app.register(healthRoutes);
   const jobsPath = fileURLToPath(new URL('../jobs/cache.json', new URL(sourceRoot,import.meta.url)));
-  const jobsService=dependencies.jobsService??new JobsService(new FileJobsCache(jobsPath),config.GREENHOUSE_BOARDS);
+  const history=new FileRunHistory(fileURLToPath(new URL('../jobs/runs.json',new URL(sourceRoot,import.meta.url))));
+  const jobsService=dependencies.jobsService??new JobsService(new FileJobsCache(jobsPath),config.GREENHOUSE_BOARDS,undefined,undefined,(run)=>history.upsert(run));
+  const scheduler=new JobsScheduler(jobsService,history);
+  app.addHook('onListen',async()=>{if(config.JOBS_AUTO_REFRESH)await scheduler.start();});
+  app.addHook('onClose',async()=>scheduler.stop());
+  app.register(automationRoutes,{scheduler});
   app.register(jobRoutes,{service:jobsService});
   app.register(matchingRoutes,{repository,jobs:jobsService});
   const aiStorePath=fileURLToPath(new URL('../ai/ledger.json',new URL(sourceRoot,import.meta.url)));

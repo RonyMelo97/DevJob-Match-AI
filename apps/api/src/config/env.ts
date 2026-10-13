@@ -9,6 +9,7 @@ const envSchema = z.object({
   OPENAI_API_KEY:z.string().default(''),
   AI_MAX_REQUEST_USD:z.coerce.number().positive().max(1).default(0.01),
   AI_DAILY_BUDGET_USD:z.coerce.number().positive().max(10).default(0.10),
+  JOBS_AUTO_REFRESH:z.enum(['true','false']).default('true').transform((value)=>value==='true'),
 });
 
 export type AppConfig = z.infer<typeof envSchema>;
