@@ -1,5 +1,14 @@
 # Histórico de entregas
 
+## Após 1.0.0 — qualidade das vagas e fit
+
+- Removidos anúncios estáticos sem publicação/descrição verificada, incluindo InfoJobs e Cadastra encerrada.
+- Gupy: busca pública React (primeira página) e descoberta em cinco quadros públicos, importação de requisitos e datas, status publicado/expiração, cache e limites.
+- Fit automático, React web como prioridade e janela padrão de 30 dias.
+- Benefícios deixam de contar como requisitos; listas de países sem Brasil são excluídas.
+- Testes de dados estruturados, fechamento, expiração, restrição de URLs, concorrência e cache.
+
+
 ## Após 1.0.0 — interface simplificada
 
 - Tabela como tela principal: vaga, empresa, local/data, fit e candidatura.

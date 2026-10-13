@@ -8,6 +8,7 @@ const technologies:Technology[] = [
   {name:'HTML',pattern:/\bhtml5?\b/i},{name:'CSS',pattern:/\bcss3?\b/i},
   {name:'SCSS',pattern:/\bscss\b/i},{name:'SASS',pattern:/\bsass\b/i},
   {name:'Next.js',pattern:/\bnext(?:\.js|js)\b/i},{name:'Node.js',pattern:/\bnode(?:\.js|js)\b/i},
+  {name:'PHP',pattern:/\bphp\b/i},{name:'SQL',pattern:/\bsql\b/i},{name:'MySQL',pattern:/\bmysql\b/i},{name:'jQuery',pattern:/\bjquery\b/i},
   {name:'Git',pattern:/\bgit\b/i},{name:'Jest',pattern:/\bjest\b/i},
   {name:'Vitest',pattern:/\bvitest\b/i},{name:'Testing Library',pattern:/\btesting library\b/i},
   {name:'Cypress',pattern:/\bcypress\b/i},{name:'Playwright',pattern:/\bplaywright\b/i},
@@ -15,12 +16,13 @@ const technologies:Technology[] = [
 type Section = Criterion|'unknown';
 type Clause = {text:string;section:Section};
 function clauses(description:string):Clause[] {
-  const tokens = description.split(/(nice to have|preferred qualifications|desejaveis|desejáveis|diferenciais|requisitos(?:\s+obrigat[oó]rios)?|requirements|must have|responsabilidades|responsibilities|qualifications|atividades)\s*:?/i);
+  const tokens = description.split(/(nice to have|preferred qualifications|desejaveis|desejáveis|diferenciais|requisitos(?:\s+(?:obrigat[oó]rios|e qualificações))?|requirements|must have|responsabilidades|responsibilities|qualifications|atividades|informações adicionais|additional information|benefícios|benefits|sobre a empresa|about us|etapas do processo)\s*:?/i);
   let section:Section='unknown';const result:Clause[]=[];
   for(const token of tokens) {
     const lower=normalized(token).trim();
     if(/^(nice to have|preferred qualifications|desejaveis|diferenciais)$/.test(lower)){section='desired';continue;}
-    if(/^(requisitos(?:\s+obrigatorios)?|requirements|must have|qualifications)$/.test(lower)){section='required';continue;}
+    if(/^(requisitos(?:\s+(?:obrigatorios|e qualificacoes))?|requirements|must have|qualifications)$/.test(lower)){section='required';continue;}
+    if(/^(informacoes adicionais|additional information|beneficios|benefits|sobre a empresa|about us|etapas do processo)$/.test(lower)){section='unknown';continue;}
     if(/^(responsabilidades|responsibilities|atividades)$/.test(lower)){section='responsibilities';continue;}
     // Avoid splitting dotted technology names. Flattened HTML uses headings and sentences.
     for(const text of token.split(/\n|;|[.!?](?=\s|$)/).map((value)=>value.trim()).filter(Boolean))result.push({text,section});

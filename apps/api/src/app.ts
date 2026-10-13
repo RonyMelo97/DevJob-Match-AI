@@ -8,6 +8,7 @@ import { MAX_PDF_BYTES } from '../../../packages/contracts/src/index.js';
 import { resumeRoutes } from './modules/resumes/routes.js';
 import { FileProfileRepository, type ProfileRepository } from './modules/resumes/repository.js';
 import { ResumeError, type ExtractedPdf } from './modules/resumes/pdf.js';
+import { GupySources } from './modules/jobs/gupy.js';
 import { FileJobsCache, JobsService } from './modules/jobs/service.js';
 import { jobRoutes } from './modules/jobs/routes.js';
 import { matchingRoutes } from './modules/matching/routes.js';
@@ -48,7 +49,7 @@ export function buildApp(config: AppConfig, logger = false, dependencies: AppDep
   app.register(healthRoutes);
   const jobsPath = fileURLToPath(new URL('../jobs/cache.json', new URL(sourceRoot,import.meta.url)));
   const history=new FileRunHistory(fileURLToPath(new URL('../jobs/runs.json',new URL(sourceRoot,import.meta.url))));
-  const jobsService=dependencies.jobsService??new JobsService(new FileJobsCache(jobsPath),config.GREENHOUSE_BOARDS,undefined,undefined,(run)=>history.upsert(run));
+  const jobsService=dependencies.jobsService??new JobsService(new FileJobsCache(jobsPath),config.GREENHOUSE_BOARDS,undefined,undefined,(run)=>history.upsert(run),new GupySources(jobsPath.replace(/cache\.json$/,'gupy.json')));
   const scheduler=new JobsScheduler(jobsService,history);
   app.addHook('onListen',async()=>{if(config.JOBS_AUTO_REFRESH)await scheduler.start();});
   app.addHook('onClose',async()=>scheduler.stop());

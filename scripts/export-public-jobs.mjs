@@ -1,8 +1,9 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import console from 'node:console';
 import { JobsService, FileJobsCache } from '../apps/api/dist/apps/api/src/modules/jobs/service.js';
+import { GupySources } from '../apps/api/dist/apps/api/src/modules/jobs/gupy.js';
 const boards=['xpinc','bees','ifoodcarreiras','vtex','nubank'];
-const service=new JobsService(new FileJobsCache('.public-cache/jobs.json'),boards);
+const service=new JobsService(new FileJobsCache('.public-cache/jobs.json'),boards,undefined,undefined,undefined,new GupySources('.public-cache/gupy.json'));
 const data=await service.get(true,'scheduled');
 if(!data.collectedAt)throw new Error('Nenhuma fonte pública pôde ser consultada; publicação interrompida.');
 await mkdir('apps/web/public',{recursive:true});

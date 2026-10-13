@@ -2,9 +2,17 @@
 
 Rastreador de vagas Front-end com compatibilidade explicável. Versão atual: **1.0.0**, MVP com busca periódica, dashboard, currículo privado, compatibilidade explicável e publicação no GitHub Pages.
 
+## Vagas verificadas e fit automático
+
+A tabela usa somente registros com descrição completa. Foi removida a lista estática de anúncios encontrada no índice de pesquisa, que não garantia links válidos, disponibilidade ou fit. Ao carregar o perfil revisado, o fit é calculado automaticamente; não é preciso copiar descrições da Gupy.
+
+A integração de páginas públicas Gupy lê a primeira página da busca React no portal (até 12 detalhes) e descobre anúncios nos quadros deliverit, tgid, fcamara, cadastra e webjump, consulta até cinco detalhes relevantes por quadro, prioriza React e descarta status diferente de published, bancos de talentos e anúncios expirados. Importa requisitos/responsabilidades originais e a data publishedAt, sem substituir pela data de verificação. Não usa API privada, login, CAPTCHA ou endpoint de candidatura. O HTML público pode mudar; falhas são sinalizadas e o cache limita consultas a seis horas. Fonte e limite são apresentados no serviço; não é busca global da Gupy.
+
+A busca padrão agora prioriza React web, até 30 dias, e evita sênior, mobile e localização incompatível. A data permanece visível: uma vaga anterior a sete dias não é apresentada como recente. O filtro aberto permite inspeção dos descartados. O fit mostra cobertura e os requisitos atendidos/parciais/não comprovados. Com cobertura inferior a 50%, é explicitamente preliminar. PHP, SQL, MySQL e jQuery também entram no dicionário técnico; não inferimos domínio de frameworks a partir dessas linguagens. Benefícios e informações adicionais encerram a seção de requisitos, evitando diminuir indevidamente o score. Ausência de informação continua sem pontuação inventada.
+
 ## Interface simples — tabela e planilha
 
-A tela principal mostra vaga/empresa, local/data, fit e link de candidatura. Use **Calcular fit com meu currículo** após salvar o perfil revisado. Vagas da pesquisa pontual não têm descrição completa no app; ficam sem percentual até você colar a descrição em Buscar em outros sites.
+A tela principal mostra vaga/empresa, local/data, fit e link de candidatura. Use **Calcular fit com meu currículo** após salvar o perfil revisado. A tabela já calcula os registros com descrição completa ao carregar seu perfil revisado. A comparação manual permanece apenas para anúncios externos ainda não integrados.
 
 **Baixar planilha CSV** exporta as linhas visíveis em UTF-8 com BOM e separador ponto e vírgula para Excel/Google Sheets. Campos desconhecidos permanecem desconhecidos e caracteres que poderiam executar fórmulas são neutralizados. O currículo e a comparação manual ficam recolhidos. A candidatura é feita no portal original.
 
@@ -53,7 +61,7 @@ Agendamento nunca chama IA, nunca envia currículo e não faz candidaturas. Falh
 
 O painel oferece buscas externas no LinkedIn (São Paulo ou remoto/Brasil), Indeed, Gupy, InfoJobs, Vagas.com e Catho, com opções Front-end, React/TypeScript, HTML/CSS/JavaScript e WordPress/PHP/SEO. Esses atalhos não são integrações automáticas. Resultados dependem do portal e podem exigir login; não há scraping autenticado ou bypass.
 
-Anúncios da pesquisa pontual de 13/10/2026 são apresentados com limitações de data/disponibilidade. Cole a descrição original em **Comparar uma vaga de qualquer portal com meu currículo** para calcular por regras no navegador usando o perfil revisado. A comparação usa pesos padrão; não confirma localização/data e não transmite currículo ao portal ou à IA. Não armazenamos a descrição colada.
+A pesquisa pontual antiga foi removida da tabela porque não garantia disponibilidade. Cole a descrição original em **Comparar uma vaga de qualquer portal com meu currículo** para calcular por regras no navegador usando o perfil revisado. A comparação usa pesos padrão; não confirma localização/data e não transmite currículo ao portal ou à IA. Não armazenamos a descrição colada.
 
 ## Busca aberta para testar a coleta
 

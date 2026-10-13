@@ -19,7 +19,7 @@ export function classify(job: Job, now: Date): Job {
       eligibility = 'excluded'; reasons.push('A fonte exclui explicitamente profissionais no Brasil.');
     } else if (/\b(brasil|brazil|worldwide|anywhere|global|latin america|latam|south america)\b/.test(location)) {
       eligibility = 'eligible'; reasons.push('A fonte inclui o Brasil ou uma região que abrange o Brasil.');
-    } else if (location.split(/[,;|/]/).every((region) => /^(us|usa|united states|united kingdom|uk|canada|europe|eu|emea|apac|germany|portugal)( only)?$/.test(region.trim()))) {
+    } else if (location.split(/[,;|/]/).every((region) => /^(us|usa|united states|united kingdom|uk|canada|europe|eu|emea|apac|germany|portugal|india|australia|ireland|new zealand|philippines|pakistan|singapore|mexico)( only)?$/.test(region.trim()))) {
       eligibility = 'excluded'; reasons.push('Restrição geográfica da vaga não inclui o Brasil.');
     } else reasons.push('Elegibilidade para trabalhar do Brasil não confirmada.');
     if (/\b(?:must|only|obrigatorio)\b.{0,35}\b(?:us citizen|us citizenship|reside in the us|residir nos estados unidos)\b|\b(?:remote|candidates?|applicants?)\b.{0,25}\b(?:us|usa|united states) only\b/i.test(job.description)) {

@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 export const jobSchema = z.object({
-  id: z.string(), source: z.enum(['remotive', 'greenhouse', 'manual']), sourceId: z.string(),
+  id: z.string(), source: z.enum(['remotive', 'greenhouse', 'manual', 'gupy']), sourceId: z.string(),
   title: z.string(), company: z.string(), url: z.url().refine((value) => new URL(value).protocol === 'https:'),
-  description: z.string(), salary: z.string().nullable(), candidateLocation: z.string().nullable(),
+  checkedAt:z.iso.datetime().nullable().optional(), description: z.string(), salary: z.string().nullable(), candidateLocation: z.string().nullable(),
   modality: z.enum(['remote', 'hybrid', 'onsite', 'unknown']), seniority: z.enum(['junior', 'mid', 'senior', 'unknown']),
   publishedAt: z.string().nullable(), publicationRaw: z.string().nullable(),
   eligibility: z.enum(['eligible', 'unconfirmed', 'excluded']), reasons: z.array(z.string()),

@@ -6,6 +6,7 @@ import { jobSchema, jobsResponseSchema, type JobsResponse } from '../../../../..
 import { classify, deduplicate } from './rules.js';
 import { collectGreenhouse, collectRemotive, fetchJson, type FetchJson } from './providers.js';
 import type { JobRun } from '../../../../../packages/contracts/src/index.js';
+import type { GupySources } from './gupy.js';
 import { snapshotChanges } from './run-history.js';
 
 const SIX_HOURS = 6 * 60 * 60 * 1000;
@@ -30,7 +31,7 @@ export class FileJobsCache implements JobsCache {
 export class JobsService {
   private running: Promise<Snapshot> | null = null;
   isCollecting():boolean{return this.running!==null;}
-  constructor(private readonly cache:JobsCache,private readonly boards:string[], private readonly fetcher:FetchJson = fetchJson, private readonly clock:()=>Date = () => new Date(),private readonly report?:(run:JobRun)=>Promise<void>) {}
+  constructor(private readonly cache:JobsCache,private readonly boards:string[], private readonly fetcher:FetchJson = fetchJson, private readonly clock:()=>Date = () => new Date(),private readonly report?:(run:JobRun)=>Promise<void>,private readonly gupy?:GupySources) {}
   async get(refresh=false,trigger:JobRun['trigger']='manual'):Promise<JobsResponse> {
     let snapshot = await this.cache.read();
     if (refresh && this.running) {
@@ -40,10 +41,12 @@ export class JobsService {
       snapshot = await this.running;
     }
     const now = this.clock();
-    const filtered = (snapshot?.jobs ?? []).map((job) => classify(job,now));
+    const gupy=await this.gupy?.get();
+    const filtered = [...(snapshot?.jobs ?? []),...(gupy?.jobs??[])].map((job) => classify(job,now));
     const usable = filtered.filter((job) => job.eligibility !== 'excluded' && job.recency !== 'excluded' && job.seniority !== 'senior');
     const unique = deduplicate(usable);
     const sort = (a: typeof usable[number],b: typeof usable[number]):number => (b.publicationRaw ?? '').localeCompare(a.publicationRaw ?? '');
+    if(gupy)snapshot={nextRefreshAt:snapshot?.nextRefreshAt??gupy.nextRefreshAt,collectedAt:snapshot?.collectedAt??gupy.checkedAt,jobs:snapshot?.jobs??[],sources:[...(snapshot?.sources??[]),{name:'Gupy (busca React + quadros públicos)',status:gupy.failures?'error':'ok',message:`${gupy.jobs.length} anúncios publicados com descrição; ${gupy.failures} falhas. Primeira página pública de React (até 12 detalhes) + até cinco anúncios por quadro; sem cobertura global.`}]};
     return jobsResponseSchema.parse({ excludedJobs:deduplicate(filtered.filter(job=>job.eligibility==='excluded'||job.recency==='excluded'||job.seniority==='senior')).jobs.sort(sort), jobs:unique.jobs.filter((job)=>job.recency==='recent').sort(sort), unconfirmedDates:unique.jobs.filter((job)=>job.recency==='unknown').sort(sort), collectedAt:snapshot?.collectedAt??null,nextRefreshAt:snapshot?.nextRefreshAt??null,sources:snapshot?.sources??[{name:'Remotive',status:'disabled',message:'Clique em consultar fontes para iniciar.'},{name:'Greenhouse',status:'disabled',message:this.boards.length ? 'Quadros configurados, ainda não consultados.' : 'Nenhum quadro de empresa configurado.'}],discarded:filtered.length-usable.length,duplicates:unique.duplicates });
   }
   private async collect(previous:Snapshot|null,trigger:JobRun['trigger']):Promise<Snapshot> {

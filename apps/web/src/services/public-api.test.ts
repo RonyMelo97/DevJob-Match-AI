@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { createPublicApi } from './public-api';
 import { type Job } from '@devjob/contracts';
 const profile = { objective: 'Front-end junior', summary: '', skills: ['React'], experience: '', education: '', languages: '' };
-const job: Job = { id: 'fixture', source: 'remotive', sourceId: 'fixture', title: 'Frontend Developer', company: 'Synthetic test only', url: 'https://example.org/job', description: 'Requisitos obrigatórios\nReact', salary: null, candidateLocation: 'Worldwide', modality: 'remote', seniority: 'junior', publishedAt: new Date(Date.now() - 3600000).toISOString(), publicationRaw: null, eligibility: 'eligible', recency: 'recent', reasons: [] };
+const job: Job = { id: 'fixture', source: 'remotive', sourceId: 'fixture', title: 'Frontend Developer', company: 'Synthetic test only', url: 'https://example.org/job', description: 'Requisitos obrigatórios\nReact\nInformações adicionais\nSeguro de vida\nVale refeição', salary: null, candidateLocation: 'Worldwide', modality: 'remote', seniority: 'junior', publishedAt: new Date(Date.now() - 3600000).toISOString(), publicationRaw: null, eligibility: 'eligible', recency: 'recent', reasons: [] };
 const snapshot = { jobs: [job], unconfirmedDates: [], collectedAt: new Date().toISOString(), nextRefreshAt: null, sources: [], discarded: 0, duplicates: 0 };
 describe('public browser privacy boundary', () => {
     it('reviews, scores and deletes in memory, sending no profile to the snapshot loader', async () => {

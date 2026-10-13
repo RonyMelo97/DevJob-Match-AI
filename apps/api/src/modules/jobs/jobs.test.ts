@@ -13,6 +13,7 @@ function memoryCache():JobsCache {
   return {read:async()=>stored,write:async(value)=>{stored=value;}};
 }
 describe('job rules and providers',()=> {
+  it('excludes explicit country lists without Brazil instead of displaying them as local leads',()=>{expect(classify(job({candidateLocation:'USA, UK, India, Australia, Ireland, New Zealand, Philippines, Pakistan, Singapore, Mexico'}),now).eligibility).toBe('excluded');});
   it('includes web and WordPress titles without accepting unrelated PHP backend roles',()=>{expect(relevant('Programador WordPress / HTML CSS','')).toBe(true);expect(relevant('Programador Web PHP','')).toBe(true);expect(relevant('Backend PHP','REST APIs')).toBe(false);});
   it.each(['Worldwide','Brazil','Latin America'])('accepts remote eligibility %s',(candidateLocation)=>{expect(classify(job({candidateLocation}),now).eligibility).toBe('eligible');});
   it('excludes explicitly restricted remote jobs',()=>{expect(classify(job({candidateLocation:'United States'}),now).eligibility).toBe('excluded');});
