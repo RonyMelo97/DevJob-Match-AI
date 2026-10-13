@@ -1,5 +1,15 @@
 # Histórico de entregas
 
+## 0.4.0 - 2026-10-13
+
+- Motor determinístico com seis critérios, pesos configuráveis, score e cobertura.
+- Estados atendido, parcial, não atendido e informação insuficiente com evidências.
+- Ranking técnico sem pontuar localização, elegibilidade, data ou salário.
+- API de análise sobre o perfil revisado e vagas em cache, sem chamadas externas.
+- Interface de configuração, explicações e invalidação após alterações.
+
+Detalhes: [fórmula](docs/matching.md) e [entrega 0.4.0](docs/releases/v0.4.0.md).
+
 ## 0.3.0 - 2026-10-13
 
 Primeiro snapshot versionado: reúne o código das etapas 0.1.0, 0.2.0 e 0.3.0. As etapas anteriores foram implementadas e documentadas antes do primeiro commit, por isso não possuem snapshots ou tags próprios.

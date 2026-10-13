@@ -11,4 +11,10 @@
 .panel details { margin: 16px 0; }
 .panel summary { cursor: pointer; }
 .panel summary:focus-visible { outline: 3px solid #b5f6df; outline-offset: 3px; }
+.weight { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 12px 0; }
+.weight input { width: 90px; background: #0c1723; color: #eaf1f8; border: 1px solid #718394; border-radius: 5px; padding: 8px; font: inherit; }
+.panel fieldset { border: 1px solid #718394; border-radius: 8px; margin: 16px 0; }
+.analysis { border-top: 1px solid #334455; margin-top: 20px; padding-top: 8px; }
+.analysis h4 { color: #7ee4bc; font-size: 18px; }
+.analysis h5 { font-size: 16px; }
 @media (max-width: 600px) { .panel { padding: 18px; } .card { padding: 16px; } }

@@ -21,7 +21,7 @@ async function readResponse(response: Response): Promise<unknown> {
   return response.json() as Promise<unknown>;
 }
 
-export function ResumePanel(): React.JSX.Element {
+export function ResumePanel({onProfileChange}:{onProfileChange:()=>void}): React.JSX.Element {
   const [file, setFile] = useState<File | null>(null);
   const [draft, setDraft] = useState<ResumeDraft | null>(null);
   const [profile, setProfile] = useState<ResumeProfile | null>(null);
@@ -66,6 +66,7 @@ export function ResumePanel(): React.JSX.Element {
       const response = savedResponse.parse(await readResponse(await fetch('/api/profile', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ profile: result, reviewed: true }) })));
       setSaved(response.saved); setProfile(result); setDraft(null); setReviewed(false); setFile(null);
       setMessage('Perfil revisado salvo no seu computador. O PDF e o texto bruto não foram armazenados.');
+      onProfileChange();
     } catch (cause: unknown) { setError(cause instanceof z.ZodError ? 'Confira os limites dos campos e das tecnologias (até 100 itens de 100 caracteres).' : cause instanceof Error ? cause.message : 'Falha ao salvar.'); }
     finally { setBusy(false); }
   }
@@ -76,6 +77,7 @@ export function ResumePanel(): React.JSX.Element {
       if (!response.ok) await readResponse(response);
       setSaved(null); setProfile(null); setDraft(null); setFile(null); setSkills(''); setReviewed(false); setDeleteRequested(false);
       setMessage('Perfil excluído do armazenamento local.');
+      onProfileChange();
     } catch (cause: unknown) { setError(cause instanceof Error ? cause.message : 'Falha ao excluir.'); }
     finally { setBusy(false); }
   }

@@ -9,7 +9,7 @@ describe('API foundation', () => {
     try {
       const response = await app.inject({ method: 'GET', url: '/health' });
       expect(response.statusCode).toBe(200);
-      expect(healthResponseSchema.parse(response.json())).toEqual({ status: 'ok', service: 'devjob-api', version: '0.3.0' });
+      expect(healthResponseSchema.parse(response.json())).toEqual({ status: 'ok', service: 'devjob-api', version: '0.4.0' });
     } finally { await app.close(); }
   });
   it.each(['0', '65536', 'abc'])('rejects invalid port %s', (PORT) => {

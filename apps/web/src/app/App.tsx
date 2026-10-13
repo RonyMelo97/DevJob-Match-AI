@@ -9,6 +9,7 @@ type Connection = 'loading' | 'connected' | 'error';
 export function App(): React.JSX.Element {
   const [connection, setConnection] = useState<Connection>('loading');
   const [attempt, setAttempt] = useState<number>(0);
+  const [profileRevision,setProfileRevision]=useState<number>(0);
   useEffect(() => {
     const controller = new AbortController();
     setConnection('loading');
@@ -32,7 +33,7 @@ export function App(): React.JSX.Element {
     error: 'Não foi possível conectar à API. Verifique se o backend está em execução.',
   };
   return <main className={styles.container}>
-    <header className={styles.header}><a className={styles.brand} href="/">DevJob<span> Match AI</span></a><span className={styles.version}>v0.3.0</span></header>
+    <header className={styles.header}><a className={styles.brand} href="/">DevJob<span> Match AI</span></a><span className={styles.version}>v0.4.0</span></header>
     <section className={styles.hero}>
       <p className={styles.eyebrow}>SEU PRÓXIMO PASSO, COM MAIS CLAREZA</p>
       <h1>Encontre oportunidades.<br /><span>Entenda sua compatibilidade.</span></h1>
@@ -40,13 +41,13 @@ export function App(): React.JSX.Element {
       <div className={styles.status} role="status" aria-live="polite"><span aria-hidden="true" className={`${styles.dot} ${connection === 'connected' ? styles.connected : ''}`} />{labels[connection]}</div>
       {connection === 'error' && <button className={styles.retry} onClick={() => setAttempt((value) => value + 1)}>Tentar novamente</button>}
     </section>
-    <ResumePanel />
-    <JobsPanel />
+    <ResumePanel onProfileChange={()=>setProfileRevision((current)=>current+1)}/>
+    <JobsPanel profileRevision={profileRevision}/>
     <section aria-labelledby="next-title"><h2 id="next-title">O que vem a seguir</h2><div className={styles.cards}>
       <article><span>01 / PERFIL</span><h3>Seu currículo como ponto de partida</h3><p>Envie um PDF e revise as experiências e habilidades extraídas.</p><small>Disponível nesta versão</small></article>
       <article><span>02 / OPORTUNIDADES</span><h3>Vagas com contexto</h3><p>Consulte fontes públicas e confira data, modalidade e elegibilidade.</p><small>Disponível nesta versão</small></article>
-      <article><span>03 / COMPATIBILIDADE</span><h3>Uma análise que você entende</h3><p>Veja requisitos atendidos e informações que precisam de confirmação.</p><small>Previsto para v0.4.0</small></article>
+      <article><span>03 / COMPATIBILIDADE</span><h3>Uma análise que você entende</h3><p>Veja requisitos atendidos e informações que precisam de confirmação.</p><small>Disponível nesta versão</small></article>
     </div></section>
-    <footer>Projeto em desenvolvimento · Compatibilidade disponível a partir da v0.4.0.</footer>
+    <footer>Estimativas fundamentadas em evidências · Não representam probabilidade de contratação.</footer>
   </main>;
 }

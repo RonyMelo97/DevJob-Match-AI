@@ -10,6 +10,7 @@ import { FileProfileRepository, type ProfileRepository } from './modules/resumes
 import { ResumeError, type ExtractedPdf } from './modules/resumes/pdf.js';
 import { FileJobsCache, JobsService } from './modules/jobs/service.js';
 import { jobRoutes } from './modules/jobs/routes.js';
+import { matchingRoutes } from './modules/matching/routes.js';
 
 export type AppDependencies = { repository?: ProfileRepository; extract?: (data: Buffer) => Promise<ExtractedPdf>; jobsService?: JobsService };
 
@@ -39,6 +40,8 @@ export function buildApp(config: AppConfig, logger = false, dependencies: AppDep
   app.register(resumeRoutes, { repository, ...(dependencies.extract ? { extract: dependencies.extract } : {}) });
   app.register(healthRoutes);
   const jobsPath = fileURLToPath(new URL('../jobs/cache.json', new URL(sourceRoot,import.meta.url)));
-  app.register(jobRoutes,{service:dependencies.jobsService??new JobsService(new FileJobsCache(jobsPath),config.GREENHOUSE_BOARDS)});
+  const jobsService=dependencies.jobsService??new JobsService(new FileJobsCache(jobsPath),config.GREENHOUSE_BOARDS);
+  app.register(jobRoutes,{service:jobsService});
+  app.register(matchingRoutes,{repository,jobs:jobsService});
   return app;
 }

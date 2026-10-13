@@ -1,6 +1,6 @@
 # DevJob Match AI
 
-Rastreador de vagas Front-end com compatibilidade explicável. Versão atual: **0.3.0**, currículo e integração com fontes públicas de vagas. O cálculo de compatibilidade começa na próxima versão.
+Rastreador de vagas Front-end com compatibilidade explicável. Versão atual: **0.4.0**, currículo, fontes públicas e motor determinístico de compatibilidade.
 
 ## Executar localmente
 
@@ -71,6 +71,16 @@ Duplicatas são removidas por fonte/ID e URL normalizada, ignorando parâmetros 
 Validação manual: consulte uma vez, confira status das fontes e o horário da próxima janela; clique novamente e confirme que o horário não muda. Recarregue a página e verifique o cache. Confira atribuição, link original e seção de datas incertas. Resultados vazios são possíveis: nenhuma fonte garante cobertura completa.
 
 ## Organização e aprendizado
+
+## Compatibilidade
+
+Salve um perfil revisado, consulte as fontes e clique em **Calcular compatibilidade com perfil salvo**. O cálculo usa apenas o cache, não faz novas consultas nem envia currículo a terceiros. Sem perfil salvo, a API solicita revisão antes de calcular. Datas incertas continuam separadas.
+
+Configure os seis pesos na interface (soma de 100). Cada cartão mostra score estimado, cobertura e explicações por critério com trechos da vaga e do perfil. Quando não há evidência avaliável, mostra resultado não calculável, não um percentual inventado. Alterar perfil, pesos ou fontes exige novo cálculo. Os resultados não são persistidos nem sincronizados entre abas.
+
+Leia a [fórmula e suas limitações](docs/matching.md). Ausência no currículo não comprova desconhecimento. Proficiência, senioridade e anos não são inventados. As regras reconhecem um conjunto limitado de títulos e tecnologias; a cobertura refere-se aos critérios identificados, não a uma compreensão completa da descrição. O score não é probabilidade de contratação.
+
+API: POST `/matches` com `{}` usa pesos padrão, ou informe `{ "weights": { "required": 35, "experience": 20, "seniority": 15, "desired": 15, "responsibilities": 10, "language": 5 } }`. Pesos inválidos retornam 400; perfil ausente retorna 409. Respostas usam no-store e não são gravadas nos logs.
 
 - `apps/web`: interface React e estilos CSS Modules.
 - `apps/api`: servidor Fastify, configuração e rotas.
